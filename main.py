@@ -19,14 +19,18 @@ def home():
 
 @app.post("/login")
 def login(data: Login):
-    res = supabase.table("usuarios").select("*").eq("email", data.email).execute()
+    try:
+        res = supabase.table("usuarios").select("*").eq("email", data.email).execute()
 
-    if not res.data:
-        return {"erro": "Usuário não encontrado"}
+        if not res.data:
+            return {"erro": "Usuário não encontrado"}
 
-    user = res.data[0]
+        user = res.data[0]
 
-    if user["senha"] != data.senha:
-        return {"erro": "Senha inválida"}
+        if user["senha"] != data.senha:
+            return {"erro": "Senha inválida"}
 
-    return {"msg": "ok", "user": user}
+        return {"msg": "ok", "user": user}
+
+    except Exception as e:
+        return {"erro_real": str(e)}
