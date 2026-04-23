@@ -4,8 +4,8 @@ from supabase import create_client
 
 app = FastAPI()
 
-SUPABASE_URL = "https://fxazgecbhcyenaorvoia.supabase.co/rest/v1/"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4YXpnZWNiaGN5ZW5hb3J2b2lhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NjkyNjMsImV4cCI6MjA5MjU0NTI2M30.Ytx4pUIrGZTE8WKNG73x_zUK4NdN1GmpL7tXPRKCduU"
+SUPABASE_URL = "https://fxazgecbhcyenaorvoia.supabase.co"
+SUPABASE_KEY = "process.env.SUPABASE_KEY"
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
