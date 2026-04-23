@@ -5,7 +5,7 @@ from supabase import create_client
 app = FastAPI()
 
 SUPABASE_URL = "https://fxazgecbhcyenaorvoia.supabase.co"
-SUPABASE_KEY = "process.env.SUPABASE_KEY"
+SUPABASE_KEY = "sb_publishable_aormg_giH-RsCGZyXcMRrg_d_rUh5z5"
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
