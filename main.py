@@ -5,7 +5,7 @@ from supabase import create_client
 app = FastAPI()
 
 SUPABASE_URL = "https://fxazgecbhcyenaorvoia.supabase.co"
-SUPABASE_KEY = "sb_publishable_aormg_giH-RsCGZyXcMRrg_d_rUh5z5"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4YXpnZWNiaGN5ZW5hb3J2b2lhIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3Njk2OTI2MywiZXhwIjoyMDkyNTQ1MjYzfQ.pe4dhOCxX_d36Lb0VFStBrJiJinmLhUH0-eVOGr7NjM"
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
