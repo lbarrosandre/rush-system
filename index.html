@@ -1,0 +1,3622 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rush — Gestão de Agendamentos</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#07101C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Rush">
+<link rel="manifest" id="pwa-manifest">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%232563EB'/%3E%3Ctext y='.9em' font-size='72' x='50%25' text-anchor='middle' font-family='sans-serif' font-weight='900' fill='white'%3ER%3C/text%3E%3C/svg%3E">
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+<style>
+:root {
+  --bg-app:       #07101C;
+  --bg-surface:   #0C1A2E;
+  --bg-card:      #0F2040;
+  --bg-card2:     #142848;
+  --bg-hover:     #1A3255;
+  --accent:       #2563EB;
+  --accent2:      #3B82F6;
+  --accent-dim:   rgba(37,99,235,0.18);
+  --accent-border:rgba(37,99,235,0.40);
+  --text-1:       #EEF2FF;
+  --text-2:       #93A8C4;
+  --text-3:       #506484;
+  --border:       rgba(255,255,255,0.07);
+  --border2:      rgba(255,255,255,0.13);
+  --success:      #10B981;
+  --success-dim:  rgba(16,185,129,0.15);
+  --warning:      #F59E0B;
+  --warning-dim:  rgba(245,158,11,0.15);
+  --danger:       #EF4444;
+  --danger-dim:   rgba(239,68,68,0.15);
+  --radius:       10px;
+  --radius-lg:    16px;
+  --sidebar-w:    240px;
+  --header-h:     60px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg-app);
+  color: var(--text-1);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ══════════════════════════════════════
+   LOGIN SCREEN
+══════════════════════════════════════ */
+#loginScreen {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: var(--bg-app);
+  overflow: hidden;
+}
+
+.login-bg::before {
+  content: '';
+  position: absolute;
+  width: 700px;
+  height: 700px;
+  background: radial-gradient(circle, rgba(37,99,235,0.18) 0%, transparent 70%);
+  top: -200px;
+  left: -200px;
+  border-radius: 50%;
+  animation: pulse-glow 6s ease-in-out infinite;
+}
+
+.login-bg::after {
+  content: '';
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(59,130,246,0.12) 0%, transparent 70%);
+  bottom: -150px;
+  right: -100px;
+  border-radius: 50%;
+  animation: pulse-glow 8s ease-in-out 2s infinite;
+}
+
+.login-bg-dots {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.1); opacity: 0.7; }
+}
+
+.login-wrapper {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: 100%;
+  max-width: 900px;
+  min-height: 540px;
+  margin: 24px;
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid var(--border2);
+  box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(37,99,235,0.1);
+}
+
+/* Left panel */
+.login-left {
+  width: 42%;
+  background: linear-gradient(145deg, #0d1f3c 0%, #091628 100%);
+  padding: 48px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-left::before {
+  content: '';
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(37,99,235,0.25) 0%, transparent 70%);
+  bottom: -80px;
+  right: -80px;
+  border-radius: 50%;
+}
+
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.login-brand-logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 20px;
+  color: #fff;
+  box-shadow: 0 0 20px rgba(37,99,235,0.5);
+}
+
+.login-brand-name {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 26px;
+  color: var(--text-1);
+  letter-spacing: -0.5px;
+}
+
+.login-tagline {
+  font-size: 13px;
+  color: var(--text-3);
+  margin-top: 3px;
+  letter-spacing: 0.02em;
+}
+
+.login-left-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 40px 0 20px;
+}
+
+.login-left-title {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 1.2;
+  color: var(--text-1);
+  margin-bottom: 14px;
+}
+
+.login-left-title span {
+  color: var(--accent2);
+}
+
+.login-left-desc {
+  font-size: 13.5px;
+  color: var(--text-3);
+  line-height: 1.7;
+  margin-bottom: 32px;
+}
+
+.login-features {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.login-feature {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+.login-feature-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent2);
+  flex-shrink: 0;
+  box-shadow: 0 0 8px rgba(59,130,246,0.6);
+}
+
+.login-left-footer {
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+/* Right panel */
+.login-right {
+  flex: 1;
+  background: var(--bg-surface);
+  padding: 48px 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.login-right-title {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 24px;
+  color: var(--text-1);
+  margin-bottom: 6px;
+}
+
+.login-right-sub {
+  font-size: 13.5px;
+  color: var(--text-3);
+  margin-bottom: 36px;
+}
+
+.login-form-group {
+  margin-bottom: 18px;
+}
+
+.login-label {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-3);
+  margin-bottom: 8px;
+}
+
+.login-input {
+  width: 100%;
+  background: var(--bg-card2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  font-size: 14px;
+  color: var(--text-1);
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.login-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+}
+
+.login-input::placeholder {
+  color: var(--text-3);
+}
+
+.login-btn {
+  width: 100%;
+  padding: 13px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 16px rgba(37,99,235,0.35);
+}
+
+.login-btn:hover:not(:disabled) {
+  background: var(--accent2);
+  box-shadow: 0 6px 20px rgba(37,99,235,0.45);
+  transform: translateY(-1px);
+}
+
+.login-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.login-error {
+  background: var(--danger-dim);
+  border: 1px solid rgba(239,68,68,0.3);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--danger);
+  margin-bottom: 16px;
+  display: none;
+}
+
+.login-error.visible { display: block; }
+
+.login-spinner {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0;
+  color: var(--text-3);
+  font-size: 12px;
+}
+
+.login-divider::before, .login-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.login-domain {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-3);
+  margin-top: 20px;
+}
+
+.login-domain span {
+  color: var(--accent2);
+  font-weight: 500;
+}
+
+@media (max-width: 640px) {
+  .login-wrapper { margin: 0; border-radius: 0; flex-direction: column; min-height: 100vh; }
+  .login-left { width: 100%; padding: 32px 28px 24px; }
+  .login-left-content { padding: 20px 0 0; }
+  .login-left-title { font-size: 22px; }
+  .login-features { display: none; }
+  .login-right { padding: 32px 28px; }
+}
+
+/* ══════════════════════════════════════
+   MAIN APP LAYOUT
+══════════════════════════════════════ */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 100;
+  transition: transform 0.25s ease;
+}
+
+.sidebar-brand {
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: var(--header-h);
+}
+
+.brand-logo {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: #fff;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.brand-logo img {
+  width: 100%; height: 100%; object-fit: cover;
+}
+
+.brand-info { overflow: hidden; }
+.brand-name {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.brand-type {
+  font-size: 11px;
+  color: var(--text-3);
+  margin-top: 1px;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 12px 10px;
+  overflow-y: auto;
+}
+
+.nav-section-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  padding: 14px 8px 6px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 13.5px;
+  color: var(--text-2);
+  transition: all 0.15s;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  margin-bottom: 2px;
+}
+
+.nav-item:hover { background: var(--bg-hover); color: var(--text-1); }
+.nav-item.active {
+  background: var(--accent-dim);
+  color: var(--accent2);
+  border: 1px solid var(--accent-border);
+}
+
+.nav-icon {
+  width: 18px; height: 18px;
+  opacity: 0.8;
+  flex-shrink: 0;
+}
+.nav-item.active .nav-icon { opacity: 1; }
+
+.nav-badge {
+  margin-left: auto;
+  background: var(--accent);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 20px;
+}
+
+.sidebar-footer {
+  padding: 14px 10px;
+  border-top: 1px solid var(--border);
+}
+
+/* user badge in sidebar */
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 10px 6px;
+  margin-bottom: 4px;
+}
+
+.sidebar-user-avatar {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: var(--accent-dim);
+  border: 1px solid var(--accent-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--accent2);
+  flex-shrink: 0;
+}
+
+.sidebar-user-info { overflow: hidden; flex: 1; }
+.sidebar-user-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sidebar-user-role {
+  font-size: 10px;
+  color: var(--text-3);
+}
+
+/* ── MAIN CONTENT ── */
+.main-content {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.topbar {
+  height: var(--header-h);
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.topbar-title {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  flex: 1;
+}
+
+.topbar-date {
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+.btn-menu {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-2);
+  cursor: pointer;
+  padding: 4px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover { background: var(--accent2); }
+
+.btn-outline {
+  background: transparent;
+  color: var(--text-2);
+  border: 1px solid var(--border2);
+}
+.btn-outline:hover { background: var(--bg-hover); color: var(--text-1); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-2);
+}
+.btn-ghost:hover { color: var(--text-1); background: var(--bg-hover); }
+
+.page-content {
+  padding: 28px 28px 80px;
+  flex: 1;
+}
+
+/* ── SCREENS ── */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ── CARDS ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+
+.card-title {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-2);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ── METRICS GRID ── */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.metric-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.metric-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+
+.metric-card.blue::before { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+.metric-card.green::before { background: linear-gradient(90deg, #059669, var(--success)); }
+.metric-card.amber::before { background: linear-gradient(90deg, #D97706, var(--warning)); }
+.metric-card.red::before { background: linear-gradient(90deg, #DC2626, var(--danger)); }
+
+.metric-label {
+  font-size: 12px;
+  color: var(--text-3);
+  margin-bottom: 8px;
+}
+
+.metric-value {
+  font-family: 'Outfit', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-1);
+  line-height: 1;
+}
+
+.metric-sub {
+  font-size: 11px;
+  color: var(--text-3);
+  margin-top: 6px;
+}
+
+.metric-icon {
+  position: absolute;
+  right: 16px; top: 16px;
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+/* ── GRID ── */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+}
+
+/* ── AGENDA ITEM ── */
+.agenda-list { display: flex; flex-direction: column; gap: 10px; }
+
+.agenda-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  background: var(--bg-card2);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.agenda-item:hover { border-color: var(--accent-border); background: var(--bg-hover); }
+
+.agenda-time {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--accent2);
+  min-width: 46px;
+  text-align: center;
+}
+
+.agenda-avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: var(--accent-dim);
+  border: 1px solid var(--accent-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--accent2);
+  flex-shrink: 0;
+}
+
+.agenda-info { flex: 1; }
+.agenda-client { font-size: 13.5px; font-weight: 500; color: var(--text-1); }
+.agenda-service { font-size: 11.5px; color: var(--text-3); margin-top: 2px; }
+
+.status-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 20px;
+}
+.status-confirmed { background: var(--success-dim); color: var(--success); }
+.status-pending   { background: var(--warning-dim); color: var(--warning); }
+.status-done      { background: var(--border);       color: var(--text-3); }
+.status-cancelled { background: var(--danger-dim);   color: var(--danger); }
+
+/* ── FULLCALENDAR OVERRIDE ── */
+.fc {
+  --fc-bg-event-opacity: 0.85;
+  --fc-border-color: var(--border);
+  --fc-daygrid-event-dot-width: 6px;
+  --fc-today-bg-color: var(--accent-dim);
+  --fc-event-bg-color: var(--accent);
+  --fc-event-border-color: transparent;
+  --fc-event-text-color: #fff;
+  --fc-page-bg-color: transparent;
+}
+
+.fc .fc-scrollgrid { border-color: var(--border) !important; }
+.fc td, .fc th { border-color: var(--border) !important; }
+.fc .fc-col-header-cell { background: var(--bg-card2); }
+.fc .fc-col-header-cell-cushion { color: var(--text-2); font-size: 12px; font-weight: 500; text-decoration: none; padding: 8px; }
+.fc .fc-daygrid-day-number { color: var(--text-2); font-size: 12px; text-decoration: none; padding: 6px; }
+.fc .fc-day-today .fc-daygrid-day-number { color: var(--accent2); font-weight: 700; }
+.fc .fc-timegrid-slot-label-cushion { color: var(--text-3); font-size: 11px; }
+.fc .fc-event { border-radius: 6px; font-size: 12px; font-weight: 500; padding: 2px 5px; }
+.fc .fc-toolbar-title { font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 16px; color: var(--text-1); }
+.fc .fc-button { background: var(--bg-card2) !important; border: 1px solid var(--border2) !important; color: var(--text-2) !important; font-size: 12px !important; border-radius: 8px !important; padding: 5px 10px !important; }
+.fc .fc-button:hover { background: var(--bg-hover) !important; color: var(--text-1) !important; }
+.fc .fc-button-active { background: var(--accent-dim) !important; color: var(--accent2) !important; border-color: var(--accent-border) !important; }
+.fc .fc-timegrid-axis { background: var(--bg-surface); }
+.fc .fc-scrollgrid-sync-inner { background: var(--bg-card); }
+
+/* ── SERVIÇOS ── */
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.service-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.service-card:hover { border-color: var(--accent-border); transform: translateY(-2px); }
+
+.service-color {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  margin-bottom: 12px;
+}
+
+.service-name {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text-1);
+  margin-bottom: 4px;
+}
+.service-dur { font-size: 12px; color: var(--text-3); }
+.service-price {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--accent2);
+  margin-top: 12px;
+}
+
+.add-card {
+  border: 1.5px dashed var(--border2);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  min-height: 140px;
+  transition: border-color 0.15s;
+  color: var(--text-3);
+  font-size: 13px;
+}
+.add-card:hover { border-color: var(--accent); color: var(--accent2); }
+
+/* ── CLIENTES ── */
+.clients-table { width: 100%; border-collapse: collapse; }
+.clients-table th {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-3);
+  padding: 8px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.clients-table td {
+  padding: 12px 14px;
+  font-size: 13.5px;
+  color: var(--text-2);
+  border-bottom: 1px solid var(--border);
+}
+.clients-table tr:last-child td { border-bottom: none; }
+.clients-table tr:hover td { background: var(--bg-card2); }
+
+.client-name { color: var(--text-1) !important; font-weight: 500; }
+.client-phone { color: var(--success) !important; }
+
+/* ── CONFIG ── */
+.config-grid {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.form-group { margin-bottom: 16px; }
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-3);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.form-input {
+  width: 100%;
+  background: var(--bg-card2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  font-size: 13.5px;
+  color: var(--text-1);
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.form-input:focus { border-color: var(--accent); }
+.form-input::placeholder { color: var(--text-3); }
+
+.form-select {
+  width: 100%;
+  background: var(--bg-card2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  font-size: 13.5px;
+  color: var(--text-1);
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  cursor: pointer;
+}
+
+.logo-upload {
+  width: 100%;
+  height: 120px;
+  background: var(--bg-card2);
+  border: 1.5px dashed var(--border2);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  font-size: 13px;
+  color: var(--text-3);
+  position: relative;
+  overflow: hidden;
+}
+.logo-upload:hover { border-color: var(--accent); color: var(--accent2); }
+.logo-upload input { display: none; }
+.logo-upload img {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: contain;
+  padding: 12px;
+}
+
+.horario-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+.horario-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--bg-card2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.horario-day {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+  min-width: 80px;
+}
+
+.toggle {
+  width: 36px; height: 20px;
+  background: var(--text-3);
+  border-radius: 10px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.toggle.on { background: var(--accent); }
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 14px; height: 14px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.15s;
+}
+.toggle.on::after { transform: translateX(16px); }
+
+/* ── MODAL ── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--bg-surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  width: 100%;
+  max-width: 480px;
+  position: relative;
+}
+
+.modal-title {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 17px;
+  margin-bottom: 20px;
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px; right: 16px;
+  background: none;
+  border: none;
+  color: var(--text-3);
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+  padding: 4px;
+}
+.modal-close:hover { color: var(--text-1); }
+
+.modal-footer {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+/* ── WHATSAPP FLOW ── */
+.wa-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wa-msg {
+  max-width: 75%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.wa-msg.in {
+  background: #1E3A2F;
+  border-radius: 4px 12px 12px 12px;
+  align-self: flex-start;
+  color: #d4f1e4;
+}
+
+.wa-msg.out {
+  background: var(--accent);
+  border-radius: 12px 4px 12px 12px;
+  align-self: flex-end;
+  color: #fff;
+}
+
+.wa-time {
+  font-size: 10px;
+  color: var(--text-3);
+  text-align: center;
+  margin: 4px 0;
+}
+
+/* ── MOBILE BOTTOM NAV ── */
+.mobile-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 64px;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border);
+  z-index: 100;
+  padding: 0 8px;
+}
+
+.mobile-nav-items {
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+}
+
+.mobile-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  font-size: 10px;
+  color: var(--text-3);
+  border: none;
+  background: none;
+  padding: 8px 4px;
+  border-radius: 10px;
+  transition: color 0.15s;
+}
+.mobile-nav-item.active { color: var(--accent2); }
+.mobile-nav-item svg { width: 22px; height: 22px; }
+
+.mobile-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 99;
+}
+.mobile-overlay.open { display: block; }
+
+/* ── SECTION HEADER ── */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--text-1);
+}
+
+.section-sub { font-size: 13px; color: var(--text-3); margin-top: 3px; }
+
+/* ── TABS ── */
+.tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 4px;
+  border: 1px solid var(--border);
+  margin-bottom: 20px;
+  width: fit-content;
+}
+
+.tab-btn {
+  padding: 7px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: var(--text-3);
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.15s;
+}
+.tab-btn.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* ── SEARCH ── */
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-card2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 0 14px;
+  width: 240px;
+}
+.search-box input {
+  background: none;
+  border: none;
+  outline: none;
+  font-size: 13px;
+  color: var(--text-1);
+  padding: 9px 0;
+  font-family: 'DM Sans', sans-serif;
+  width: 100%;
+}
+.search-box input::placeholder { color: var(--text-3); }
+
+/* ── TAG/CHIP ── */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11.5px;
+  font-weight: 500;
+}
+.chip-blue { background: var(--accent-dim); color: var(--accent2); }
+
+/* ── FUNCIONÁRIOS ── */
+.func-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 4px;
+}
+
+.func-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+}
+.func-card:hover {
+  border-color: var(--accent-border);
+  background: var(--bg-card2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+}
+
+.func-avatar {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: #fff;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+
+.func-name {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text-1);
+  margin-bottom: 3px;
+}
+.func-role {
+  font-size: 12px;
+  color: var(--text-3);
+  margin-bottom: 10px;
+}
+.func-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 12px; }
+.func-tag {
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  background: var(--accent-dim);
+  color: var(--accent2);
+  font-weight: 500;
+}
+
+.func-info-row {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--text-3);
+  margin-bottom: 4px;
+}
+.func-info-row svg { flex-shrink: 0; opacity: 0.6; }
+
+.func-status {
+  position: absolute; top: 14px; right: 14px;
+}
+
+.func-add-card {
+  background: var(--bg-card);
+  border: 2px dashed var(--border2);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 10px;
+  color: var(--text-3);
+  font-size: 13px;
+  min-height: 200px;
+}
+.func-add-card:hover {
+  border-color: var(--accent-border);
+  color: var(--accent2);
+  background: var(--accent-dim);
+}
+
+/* ── PWA INSTALL BANNER ── */
+#pwaInstallBanner {
+  display: none;
+  position: fixed;
+  bottom: 72px; left: 12px; right: 12px;
+  background: var(--bg-card2);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  z-index: 200;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  align-items: center;
+  gap: 12px;
+  animation: slideUp 0.3s ease;
+}
+#pwaInstallBanner.show { display: flex; }
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.pwa-banner-icon {
+  width: 42px; height: 42px;
+  border-radius: 10px;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800; font-size: 20px; color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 0 16px rgba(37,99,235,0.4);
+}
+.pwa-banner-text { flex: 1; }
+.pwa-banner-title { font-size: 13px; font-weight: 600; color: var(--text-1); }
+.pwa-banner-sub   { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+.pwa-banner-actions { display: flex; gap: 8px; align-items: center; }
+
+/* ── QR MODAL ── */
+.qr-container {
+  text-align: center;
+  padding: 16px 0;
+}
+.qr-box {
+  display: inline-block;
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+#qrCanvas { display: block; }
+.qr-url {
+  font-size: 12px;
+  color: var(--text-3);
+  word-break: break-all;
+  background: var(--bg-card2);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-top: 8px;
+}
+
+/* ── ONBOARDING ── */
+.setup-screen {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--bg-app);
+  z-index: 300;
+  overflow-y: auto;
+}
+.setup-screen.active { display: block; }
+
+.setup-container {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 60px 24px;
+}
+
+.setup-logo {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 30px;
+  color: var(--accent2);
+  margin-bottom: 8px;
+}
+.setup-logo span { color: var(--text-1); }
+
+.setup-subtitle {
+  font-size: 14px;
+  color: var(--text-3);
+  margin-bottom: 40px;
+}
+
+.setup-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+}
+
+.setup-title {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  margin-bottom: 6px;
+}
+.setup-desc { font-size: 13px; color: var(--text-3); margin-bottom: 24px; }
+
+.step-indicator {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 30px;
+}
+.step-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--border2);
+}
+.step-dot.active { background: var(--accent2); width: 24px; border-radius: 4px; }
+.step-dot.done { background: var(--success); }
+
+/* ── BOT FLOW ── */
+.bot-flow-step {
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  background: var(--bg-card2);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  margin-bottom: 8px;
+  align-items: flex-start;
+}
+.bot-step-num {
+  width: 26px; height: 26px;
+  background: var(--accent-dim);
+  border: 1px solid var(--accent-border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent2);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.bot-step-content { flex: 1; }
+.bot-step-label { font-size: 13px; font-weight: 500; color: var(--text-1); margin-bottom: 4px; }
+.bot-step-msg { font-size: 12px; color: var(--text-3); }
+
+/* ── METRICS ROW (funcionários) ── */
+.metrics-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+@media (max-width: 480px) { .metrics-row { grid-template-columns: 1fr; } }
+
+/* ── FUNC HORARIO CHIPS ── */
+.func-horarios { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+.func-horario-chip {
+  font-size: 10px; padding: 2px 7px;
+  border-radius: 20px;
+  background: var(--success-dim); color: var(--success);
+  font-weight: 500;
+}
+
+/* ── PWA INSTALL MODAL ── */
+.pwa-install-step {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 14px; background: var(--bg-card2);
+  border-radius: var(--radius); border: 1px solid var(--border);
+  margin-bottom: 10px;
+}
+.pwa-install-num {
+  width: 28px; height: 28px; flex-shrink: 0;
+  background: var(--accent); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 13px; color: #fff;
+}
+.pwa-install-text { flex: 1; }
+.pwa-install-title { font-size: 13px; font-weight: 600; color: var(--text-1); margin-bottom: 3px; }
+.pwa-install-desc  { font-size: 12px; color: var(--text-3); line-height: 1.5; }
+.pwa-os-tabs { display: flex; gap: 6px; margin-bottom: 16px; }
+.pwa-os-tab {
+  flex: 1; padding: 8px; border-radius: var(--radius);
+  border: 1px solid var(--border2); background: var(--bg-card2);
+  font-size: 13px; font-weight: 500; color: var(--text-3);
+  cursor: pointer; transition: all .15s; text-align: center;
+}
+.pwa-os-tab.active { background: var(--accent-dim); color: var(--accent2); border-color: var(--accent-border); }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-3);
+}
+.empty-state svg { width: 48px; height: 48px; margin: 0 auto 12px; opacity: 0.3; }
+.empty-state p { font-size: 14px; }
+
+.divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); box-shadow: 4px 0 24px rgba(0,0,0,0.4); }
+  .main-content { margin-left: 0; }
+  .btn-menu { display: flex; }
+  .mobile-nav { display: flex; }
+  .page-content { padding: 20px 16px 80px; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .config-grid { grid-template-columns: 1fr; }
+  .horario-grid { grid-template-columns: 1fr; }
+  .section-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .search-box { width: 100%; }
+  .metrics-grid { grid-template-columns: 1fr 1fr; }
+  .topbar-date { display: none; }
+}
+@media (max-width: 480px) {
+  .metrics-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ LOGIN SCREEN ══════════ -->
+<div id="loginScreen">
+  <div class="login-bg">
+    <div class="login-bg-dots"></div>
+  </div>
+
+  <div class="login-wrapper">
+    <!-- Left Panel -->
+    <div class="login-left">
+      <div class="login-brand">
+        <div class="login-brand-logo" style="background:transparent;box-shadow:none;padding:0;overflow:hidden">
+          <img src="icon-512.png" alt="Rush" style="width:44px;height:44px;object-fit:cover;border-radius:12px">
+        </div>
+        <div>
+          <div class="login-brand-name">Rush</div>
+          <div class="login-tagline">rushapp.com.br</div>
+        </div>
+      </div>
+
+      <div class="login-left-content">
+        <div class="login-left-title">
+          Gestão inteligente<br>para seu <span>negócio</span>
+        </div>
+        <p class="login-left-desc">
+          Agendamentos, clientes e serviços em uma única plataforma. Simples, rápido e profissional.
+        </p>
+        <div class="login-features">
+          <div class="login-feature">
+            <div class="login-feature-dot"></div>
+            Agenda com calendário visual
+          </div>
+          <div class="login-feature">
+            <div class="login-feature-dot"></div>
+            Gestão completa de clientes
+          </div>
+          <div class="login-feature">
+            <div class="login-feature-dot"></div>
+            Serviços e precificação
+          </div>
+          <div class="login-feature">
+            <div class="login-feature-dot"></div>
+            Bot WhatsApp integrado
+          </div>
+          <div class="login-feature">
+            <div class="login-feature-dot"></div>
+            Multi-empresa (SaaS)
+          </div>
+        </div>
+      </div>
+
+      <div class="login-left-footer">
+        © 2025 Rush · Todos os direitos reservados
+      </div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="login-right" id="loginRight">
+      <div class="login-right-title">Bem-vindo de volta 👋</div>
+      <p class="login-right-sub">Entre com sua conta para acessar o painel</p>
+
+      <div id="loginError" class="login-error"></div>
+
+      <!-- Entrar com Google -->
+      <button onclick="doLoginGoogle()" style="width:100%;padding:11px;background:transparent;border:1px solid var(--border2);border-radius:var(--radius);color:var(--text-1);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:16px;transition:background .15s" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        Entrar com Google
+      </button>
+
+      <div class="login-divider">ou entre com e-mail</div>
+
+      <div class="login-form-group">
+        <label class="login-label" for="loginEmail">E-mail</label>
+        <input
+          class="login-input"
+          type="email"
+          id="loginEmail"
+          placeholder="seu@email.com"
+          autocomplete="email"
+          onkeydown="if(event.key==='Enter')document.getElementById('loginPassword').focus()"
+        >
+      </div>
+
+      <div class="login-form-group">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <label class="login-label" for="loginPassword" style="margin-bottom:0">Senha</label>
+          <button onclick="showForgotPassword()" style="background:none;border:none;color:var(--accent2);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif">Esqueci minha senha</button>
+        </div>
+        <input
+          class="login-input"
+          type="password"
+          id="loginPassword"
+          placeholder="••••••••"
+          autocomplete="current-password"
+          onkeydown="if(event.key==='Enter')doLogin()"
+        >
+      </div>
+
+      <button class="login-btn" id="loginBtn" onclick="doLogin()">
+        <span id="loginBtnText">Entrar no Rush</span>
+      </button>
+
+      <div class="login-divider">ou</div>
+
+      <button class="login-btn" onclick="showRegister()" style="background:transparent;border:1px solid var(--border2);color:var(--text-2);box-shadow:none">
+        Criar nova conta
+      </button>
+
+      <div class="login-domain" style="margin-top:16px">
+        <span>rushapp.com.br</span>
+      </div>
+    </div>
+
+    <!-- Painel Cadastro -->
+    <div class="login-right" id="registerPanel" style="display:none">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+        <button onclick="hideRegister()" style="background:none;border:none;color:var(--text-3);cursor:pointer;padding:0;display:flex">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </button>
+        <div class="login-right-title" style="margin-bottom:0">Criar conta</div>
+      </div>
+      <p class="login-right-sub" style="margin-bottom:24px">Preencha os dados para acessar o Rush</p>
+
+      <div id="registerError" class="login-error"></div>
+
+      <!-- Cadastrar com Google -->
+      <button onclick="doLoginGoogle()" style="width:100%;padding:11px;background:transparent;border:1px solid var(--border2);border-radius:var(--radius);color:var(--text-1);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:16px;transition:background .15s" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        Criar conta com Google
+      </button>
+
+      <div class="login-divider">ou cadastre com e-mail</div>
+
+      <div class="login-form-group">
+        <label class="login-label">Nome completo</label>
+        <input class="login-input" type="text" id="regNome" placeholder="Seu nome" onkeydown="if(event.key==='Enter')document.getElementById('regEmail').focus()">
+      </div>
+      <div class="login-form-group">
+        <label class="login-label">E-mail</label>
+        <input class="login-input" type="email" id="regEmail" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')document.getElementById('regSenha').focus()">
+      </div>
+      <div class="login-form-group">
+        <label class="login-label">Senha</label>
+        <input class="login-input" type="password" id="regSenha" placeholder="Mínimo 6 caracteres" onkeydown="if(event.key==='Enter')document.getElementById('regConfirm').focus()">
+      </div>
+      <div class="login-form-group">
+        <label class="login-label">Confirmar senha</label>
+        <input class="login-input" type="password" id="regConfirm" placeholder="Repita a senha" onkeydown="if(event.key==='Enter')doRegister()">
+      </div>
+
+      <button class="login-btn" onclick="doRegister()">
+        <span>Criar minha conta</span>
+      </button>
+    </div>
+
+    <!-- Painel Recuperação de Senha -->
+    <div class="login-right" id="forgotPanel" style="display:none">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+        <button onclick="hideForgotPassword()" style="background:none;border:none;color:var(--text-3);cursor:pointer;padding:0;display:flex">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </button>
+        <div class="login-right-title" style="margin-bottom:0">Recuperar senha</div>
+      </div>
+      <p class="login-right-sub" style="margin-bottom:28px">Informe o e-mail da sua conta para redefinir a senha</p>
+
+      <div id="forgotError" class="login-error"></div>
+      <div id="forgotSuccess" style="display:none;background:var(--success-dim);border:1px solid rgba(16,185,129,0.3);border-radius:var(--radius);padding:10px 14px;font-size:13px;color:var(--success);margin-bottom:16px"></div>
+
+      <div class="login-form-group">
+        <label class="login-label">E-mail da conta</label>
+        <input class="login-input" type="email" id="forgotEmail" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')doForgotPassword()">
+      </div>
+
+      <div id="newPasswordGroup" class="login-form-group" style="display:none">
+        <label class="login-label">Nova senha</label>
+        <input class="login-input" type="password" id="newPassword" placeholder="Mínimo 6 caracteres" onkeydown="if(event.key==='Enter')doResetPassword()">
+      </div>
+      <div id="confirmPasswordGroup" class="login-form-group" style="display:none">
+        <label class="login-label">Confirmar nova senha</label>
+        <input class="login-input" type="password" id="confirmPassword" placeholder="Repita a senha" onkeydown="if(event.key==='Enter')doResetPassword()">
+      </div>
+
+      <button class="login-btn" id="forgotBtn" onclick="doForgotPassword()">
+        <span id="forgotBtnText">Verificar e-mail</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ SETUP SCREEN ══════════ -->
+<div class="setup-screen" id="setupScreen">
+  <div class="setup-container">
+    <div class="setup-logo">Rush<span> 🚀</span></div>
+    <p class="setup-subtitle">Configure seu estabelecimento e comece a usar em minutos</p>
+
+    <div class="step-indicator" id="stepIndicator">
+      <div class="step-dot active"></div>
+      <div class="step-dot"></div>
+      <div class="step-dot"></div>
+    </div>
+
+    <div class="setup-card" id="setupStep1">
+      <div class="setup-title">Sobre seu negócio</div>
+      <p class="setup-desc">Essas informações aparecerão para seus clientes e na plataforma.</p>
+
+      <div class="form-group">
+        <label class="form-label">Nome do Estabelecimento</label>
+        <input class="form-input" id="s_name" type="text" placeholder="Ex: Studio Bella Cabelos" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tipo de Negócio</label>
+        <select class="form-select" id="s_type">
+          <option value="">Selecione...</option>
+          <option>Salão / Barbearia</option>
+          <option>Clínica de Estética</option>
+          <option>Consultório Médico</option>
+          <option>Consultório Odontológico</option>
+          <option>Personal Trainer / Academia</option>
+          <option>Manicure / Nail Designer</option>
+          <option>Massoterapia / Spa</option>
+          <option>Estúdio de Tatuagem</option>
+          <option>Outros</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">WhatsApp do Estabelecimento</label>
+        <input class="form-input" id="s_whatsapp" type="text" placeholder="(11) 99999-9999" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Logo (opcional)</label>
+        <div class="logo-upload" onclick="document.getElementById('logoFileSetup').click()">
+          <input type="file" id="logoFileSetup" accept="image/*" onchange="previewLogo(this,'setupLogoPreview','brandLogoImg','brandLogoText')">
+          <img id="setupLogoPreview" style="display:none">
+          <svg id="setupLogoIcon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+          <span id="setupLogoLabel">Clique para fazer upload</span>
+        </div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="setupNext(2)">Próximo →</button>
+    </div>
+
+    <div class="setup-card" id="setupStep2" style="display:none">
+      <div class="setup-title">Horários de Funcionamento</div>
+      <p class="setup-desc">Configure os dias e horários em que você recebe clientes.</p>
+
+      <div id="setupHorarios">
+        <div class="horario-row" style="margin-bottom:8px">
+          <div class="horario-day">Segunda</div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          <input class="form-input" type="time" value="09:00" style="width:90px;padding:6px 8px">
+          <span style="color:var(--text-3);font-size:12px">às</span>
+          <input class="form-input" type="time" value="19:00" style="width:90px;padding:6px 8px">
+        </div>
+        <div class="horario-row" style="margin-bottom:8px">
+          <div class="horario-day">Terça</div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          <input class="form-input" type="time" value="09:00" style="width:90px;padding:6px 8px">
+          <span style="color:var(--text-3);font-size:12px">às</span>
+          <input class="form-input" type="time" value="19:00" style="width:90px;padding:6px 8px">
+        </div>
+        <div class="horario-row" style="margin-bottom:8px">
+          <div class="horario-day">Quarta</div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          <input class="form-input" type="time" value="09:00" style="width:90px;padding:6px 8px">
+          <span style="color:var(--text-3);font-size:12px">às</span>
+          <input class="form-input" type="time" value="19:00" style="width:90px;padding:6px 8px">
+        </div>
+        <div class="horario-row" style="margin-bottom:8px">
+          <div class="horario-day">Quinta</div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          <input class="form-input" type="time" value="09:00" style="width:90px;padding:6px 8px">
+          <span style="color:var(--text-3);font-size:12px">às</span>
+          <input class="form-input" type="time" value="19:00" style="width:90px;padding:6px 8px">
+        </div>
+        <div class="horario-row" style="margin-bottom:8px">
+          <div class="horario-day">Sexta</div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          <input class="form-input" type="time" value="09:00" style="width:90px;padding:6px 8px">
+          <span style="color:var(--text-3);font-size:12px">às</span>
+          <input class="form-input" type="time" value="18:00" style="width:90px;padding:6px 8px">
+        </div>
+        <div class="horario-row" style="margin-bottom:8px">
+          <div class="horario-day">Sábado</div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          <input class="form-input" type="time" value="09:00" style="width:90px;padding:6px 8px">
+          <span style="color:var(--text-3);font-size:12px">às</span>
+          <input class="form-input" type="time" value="14:00" style="width:90px;padding:6px 8px">
+        </div>
+        <div class="horario-row" style="margin-bottom:8px">
+          <div class="horario-day">Domingo</div>
+          <div class="toggle" onclick="this.classList.toggle('on')"></div>
+          <input class="form-input" type="time" value="09:00" style="width:90px;padding:6px 8px">
+          <span style="color:var(--text-3);font-size:12px">às</span>
+          <input class="form-input" type="time" value="12:00" style="width:90px;padding:6px 8px">
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button class="btn btn-outline" style="flex:1;justify-content:center" onclick="setupNext(1)">← Voltar</button>
+        <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="setupNext(3)">Próximo →</button>
+      </div>
+    </div>
+
+    <div class="setup-card" id="setupStep3" style="display:none">
+      <div class="setup-title">Seus Serviços</div>
+      <p class="setup-desc">Adicione os serviços que você oferece com duração e preço.</p>
+      <div style="display:grid;grid-template-columns:1fr 80px 90px 36px;gap:8px;margin-bottom:6px">
+        <span style="font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Serviço</span>
+        <span style="font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;text-align:center">Min</span>
+        <span style="font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;text-align:center">Preço</span>
+        <span></span>
+      </div>
+      <div id="setupServicesList"></div>
+      <button class="btn btn-ghost" style="margin-top:4px;width:100%;justify-content:center;border:1px dashed var(--border2)" onclick="addSetupService()">+ Adicionar Serviço</button>
+      <div style="display:flex;gap:10px;margin-top:20px">
+        <button class="btn btn-outline" style="flex:1;justify-content:center" onclick="setupNext(2)">← Voltar</button>
+        <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="finishSetup()">Começar a usar 🚀</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MAIN APP ══════════ -->
+<div id="mainApp" style="display:none">
+  <div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-logo" style="background:transparent;padding:0;overflow:hidden">
+          <img id="brandLogoImg" src="icon-512.png" style="display:block;width:38px;height:38px;object-fit:cover;border-radius:10px">
+          <span id="brandLogoText" style="display:none">R</span>
+        </div>
+        <div class="brand-info">
+          <div class="brand-name" id="brandName">Rush</div>
+          <div class="brand-type" id="brandType">Estabelecimento</div>
+        </div>
+      </div>
+
+      <div class="sidebar-nav">
+        <div class="nav-section-label">Principal</div>
+        <button class="nav-item active" onclick="navigate('dashboard',this)">
+          <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          Dashboard
+        </button>
+        <button class="nav-item" onclick="navigate('agenda',this)">
+          <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Agenda
+          <span class="nav-badge" id="badgeAgenda">0</span>
+        </button>
+
+        <div class="nav-section-label">Cadastros</div>
+        <button class="nav-item" onclick="navigate('servicos',this)">
+          <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+          Serviços
+        </button>
+        <button class="nav-item" onclick="navigate('clientes',this)">
+          <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          Clientes
+        </button>
+        <button class="nav-item" onclick="navigate('funcionarios',this)">
+          <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M16 11c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm-8 0c1.657 0 3-1.343 3-3S9.657 5 8 5 5 6.343 5 8s1.343 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          Funcionários
+          <span class="nav-badge" id="badgeFuncionarios" style="background:var(--success)">0</span>
+        </button>
+
+        <div class="nav-section-label">Integrações</div>
+        <button class="nav-item" onclick="navigate('whatsapp',this)">
+          <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-3 3v-3z"/></svg>
+          WhatsApp Bot
+          <span class="nav-badge" style="background:var(--success)">Novo</span>
+        </button>
+
+        <div class="nav-section-label">Conta</div>
+        <button class="nav-item" onclick="navigate('config',this)">
+          <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+          Configurações
+        </button>
+      </div>
+
+      <div class="sidebar-footer">
+        <!-- Usuário logado -->
+        <div class="sidebar-user">
+          <div class="sidebar-user-avatar" id="sidebarUserAvatar">?</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name" id="sidebarUserName">Usuário</div>
+            <div class="sidebar-user-role">Administrador</div>
+          </div>
+        </div>
+        <button class="nav-item" onclick="doLogout()" style="color:var(--danger)">
+          <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" style="color:var(--danger)"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          Sair
+        </button>
+      </div>
+    </nav>
+
+    <!-- MAIN -->
+    <div class="main-content">
+      <header class="topbar">
+        <button class="btn-menu" onclick="toggleSidebar()">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <span class="topbar-title" id="topbarTitle">Dashboard</span>
+        <span class="topbar-date" id="topbarDate"></span>
+        <button class="btn btn-primary" id="topbarActionBtn" onclick="openNewAgendamento()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Novo Agendamento
+        </button>
+      </header>
+
+      <main class="page-content">
+
+        <!-- ── DASHBOARD ── -->
+        <div class="screen active" id="screen-dashboard">
+          <div class="section-header">
+            <div>
+              <div class="section-title">Bom dia! 👋</div>
+              <div class="section-sub" id="dashSub">Aqui está o resumo de hoje</div>
+            </div>
+          </div>
+
+          <div class="metrics-grid">
+            <div class="metric-card blue">
+              <div class="metric-label">Agendamentos Hoje</div>
+              <div class="metric-value" id="metHoje">8</div>
+              <div class="metric-sub">↑ 2 a mais que ontem</div>
+              <div class="metric-icon" style="background:var(--accent-dim)">📅</div>
+            </div>
+            <div class="metric-card green">
+              <div class="metric-label">Confirmados</div>
+              <div class="metric-value" id="metConf">6</div>
+              <div class="metric-sub">75% de aprovação</div>
+              <div class="metric-icon" style="background:var(--success-dim)">✅</div>
+            </div>
+            <div class="metric-card amber">
+              <div class="metric-label">Faturamento Hoje</div>
+              <div class="metric-value" id="metFat">R$480</div>
+              <div class="metric-sub">Meta: R$600</div>
+              <div class="metric-icon" style="background:var(--warning-dim)">💰</div>
+            </div>
+            <div class="metric-card red">
+              <div class="metric-label">Pendentes</div>
+              <div class="metric-value" id="metPend">2</div>
+              <div class="metric-sub">Aguardando confirmação</div>
+              <div class="metric-icon" style="background:var(--danger-dim)">⏳</div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-title">
+                Próximos Hoje
+                <button class="btn btn-ghost" style="font-size:12px;padding:4px 8px" onclick="navigate('agenda',null)">Ver tudo →</button>
+              </div>
+              <div class="agenda-list" id="dashAgendaList"></div>
+            </div>
+            <div class="card">
+              <div class="card-title">Resumo da Semana</div>
+              <canvas id="weekChart" height="160"></canvas>
+            </div>
+          </div>
+
+          <div style="margin-top:18px">
+            <div class="card">
+              <div class="card-title">
+                Mensagens WhatsApp Recentes
+                <button class="btn btn-ghost" style="font-size:12px;padding:4px 8px" onclick="navigate('whatsapp',null)">Configurar bot →</button>
+              </div>
+              <div class="wa-flow">
+                <div class="wa-time">Hoje, 09:14</div>
+                <div class="wa-msg in">Oi, queria marcar um horário pra hoje à tarde</div>
+                <div class="wa-msg out">Olá! 😊 Temos horários disponíveis às 14h e 16h. Qual prefere?</div>
+                <div class="wa-msg in">14h fica ótimo! Qual serviço devo escolher?</div>
+                <div class="wa-msg out">Nossos serviços disponíveis:<br>1️⃣ Corte — 45min — R$60<br>2️⃣ Coloração — 90min — R$150<br>3️⃣ Escova — 60min — R$80<br><br>Digite o número do serviço:</div>
+                <div class="wa-msg in">1</div>
+                <div class="wa-msg out">✅ Agendado! Corte às 14h de hoje. Até logo!</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── AGENDA ── -->
+        <div class="screen" id="screen-agenda">
+          <div class="section-header">
+            <div>
+              <div class="section-title">Agenda</div>
+              <div class="section-sub">Gerencie seus agendamentos</div>
+            </div>
+            <button class="btn btn-primary" onclick="openNewAgendamento()">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Novo
+            </button>
+          </div>
+          <div class="card">
+            <div id="mainCalendar"></div>
+          </div>
+        </div>
+
+        <!-- ── SERVIÇOS ── -->
+        <div class="screen" id="screen-servicos">
+          <div class="section-header">
+            <div>
+              <div class="section-title">Serviços</div>
+              <div class="section-sub">Cadastre seus serviços e preços</div>
+            </div>
+            <button class="btn btn-primary" onclick="openNovoServico()">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Novo Serviço
+            </button>
+          </div>
+          <div class="services-grid" id="servicosGrid"></div>
+        </div>
+
+        <!-- ── CLIENTES ── -->
+        <div class="screen" id="screen-clientes">
+          <div class="section-header">
+            <div>
+              <div class="section-title">Clientes</div>
+              <div class="section-sub" id="clientesCount">0 clientes cadastrados</div>
+            </div>
+            <div style="display:flex;gap:10px">
+              <div class="search-box">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" placeholder="Buscar cliente..." oninput="filterClients(this.value)">
+              </div>
+              <button class="btn btn-primary" onclick="openNovoCliente()">+ Novo</button>
+            </div>
+          </div>
+          <div class="card" style="padding:0;overflow:hidden">
+            <table class="clients-table">
+              <thead>
+                <tr>
+                  <th>NOME</th>
+                  <th>WHATSAPP</th>
+                  <th>ÚLTIMO ATEND.</th>
+                  <th>TOTAL VISITAS</th>
+                  <th>STATUS</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="clientesBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ── FUNCIONÁRIOS ── -->
+        <div class="screen" id="screen-funcionarios">
+          <div class="section-header">
+            <div>
+              <div class="section-title">Funcionários</div>
+              <div class="section-sub" id="funcSubtitle">Gerencie sua equipe</div>
+            </div>
+            <button class="btn btn-primary" onclick="openNovoFuncionario()">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Novo Funcionário
+            </button>
+          </div>
+
+          <!-- Stats strip -->
+          <div class="metrics-row" style="margin-bottom:20px">
+            <div class="metric-card">
+              <div class="metric-label">Total</div>
+              <div class="metric-value" id="funcTotal">0</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Ativos</div>
+              <div class="metric-value" id="funcAtivos" style="color:var(--success)">0</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Inativos</div>
+              <div class="metric-value" id="funcInativos" style="color:var(--text-3)">0</div>
+            </div>
+          </div>
+
+          <div class="func-grid" id="funcGrid"></div>
+        </div>
+
+        <!-- ── WHATSAPP BOT ── -->
+        <div class="screen" id="screen-whatsapp">
+          <div class="section-header">
+            <div>
+              <div class="section-title">WhatsApp Bot</div>
+              <div class="section-sub">Configure o agendamento automático via mensagem</div>
+            </div>
+            <span class="chip chip-blue">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="4"/></svg>
+              Configurando
+            </span>
+          </div>
+
+          <div class="grid-2">
+            <div>
+              <div class="card" style="margin-bottom:16px">
+                <div class="card-title">Configuração da Integração</div>
+                <div class="form-group">
+                  <label class="form-label">Provedor WhatsApp</label>
+                  <select class="form-select">
+                    <option>Z-API (Recomendado para MVP)</option>
+                    <option>Evolution API (Open Source)</option>
+                    <option>Twilio (Oficial Meta)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Instance ID</label>
+                  <input class="form-input" type="text" placeholder="Seu Instance ID da Z-API">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Token</label>
+                  <input class="form-input" type="password" placeholder="••••••••••••••••">
+                </div>
+                <div style="display:flex;gap:10px">
+                  <button class="btn btn-outline" style="flex:1;justify-content:center">Testar Conexão</button>
+                  <button class="btn btn-primary" style="flex:1;justify-content:center">Salvar</button>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-title">Mensagem de Boas-vindas</div>
+                <textarea class="form-input" rows="4" style="resize:vertical">Olá! 😊 Bem-vindo(a) ao {nome_negocio}!
+
+Para agendar, digite:
+📅 *1* — Ver horários disponíveis
+📋 *2* — Nossos serviços
+❓ *3* — Falar com atendente</textarea>
+                <button class="btn btn-primary" style="margin-top:12px">Salvar Mensagem</button>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">Fluxo de Conversa</div>
+              <div class="bot-flow-step">
+                <div class="bot-step-num">1</div>
+                <div class="bot-step-content">
+                  <div class="bot-step-label">Cliente envia mensagem</div>
+                  <div class="bot-step-msg">Bot detecta nova conversa e envia boas-vindas com menu</div>
+                </div>
+              </div>
+              <div class="bot-flow-step">
+                <div class="bot-step-num">2</div>
+                <div class="bot-step-content">
+                  <div class="bot-step-label">Cliente escolhe serviço</div>
+                  <div class="bot-step-msg">Bot lista os serviços cadastrados com duração e preço</div>
+                </div>
+              </div>
+              <div class="bot-flow-step">
+                <div class="bot-step-num">3</div>
+                <div class="bot-step-content">
+                  <div class="bot-step-label">Cliente escolhe data/hora</div>
+                  <div class="bot-step-msg">Bot consulta calendário e mostra horários livres dos próximos 3 dias</div>
+                </div>
+              </div>
+              <div class="bot-flow-step">
+                <div class="bot-step-num">4</div>
+                <div class="bot-step-content">
+                  <div class="bot-step-label">Confirmação automática</div>
+                  <div class="bot-step-msg">Agendamento criado, cliente recebe confirmação com data/hora/serviço</div>
+                </div>
+              </div>
+              <div class="bot-flow-step">
+                <div class="bot-step-num">5</div>
+                <div class="bot-step-content">
+                  <div class="bot-step-label">Lembrete 24h antes</div>
+                  <div class="bot-step-msg">Bot envia lembrete automático 1 dia antes do agendamento</div>
+                </div>
+              </div>
+              <div style="margin-top:16px;padding:12px;background:var(--success-dim);border-radius:var(--radius);border:1px solid rgba(16,185,129,0.2)">
+                <p style="font-size:12px;color:var(--success)">
+                  <strong>Próximo passo:</strong> Configure o backend Python (FastAPI) para processar os webhooks do WhatsApp e gerenciar o estado das conversas.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── CONFIGURAÇÕES ── -->
+        <div class="screen" id="screen-config">
+          <div class="section-header">
+            <div>
+              <div class="section-title">Configurações</div>
+              <div class="section-sub">Personalize sua plataforma</div>
+            </div>
+          </div>
+
+          <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('tab-perfil',this)">Perfil</button>
+            <button class="tab-btn" onclick="switchTab('tab-horarios',this)">Horários</button>
+            <button class="tab-btn" onclick="switchTab('tab-notif',this)">Notificações</button>
+            <button class="tab-btn" onclick="switchTab('tab-plano',this)">Plano</button>
+          </div>
+
+          <div id="tab-perfil">
+            <div class="config-grid">
+              <div class="card">
+                <div class="card-title">Logo do Estabelecimento</div>
+                <div class="logo-upload" onclick="document.getElementById('logoFile').click()">
+                  <input type="file" id="logoFile" accept="image/*" onchange="previewLogo(this,'configLogoPreview','brandLogoImg','brandLogoText')">
+                  <img id="configLogoPreview" style="display:none">
+                  <svg id="configLogoIcon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+                  <span>Clique para alterar logo</span>
+                </div>
+                <hr class="divider">
+                <div class="form-group">
+                  <label class="form-label">Cor Principal</label>
+                  <div style="display:flex;gap:8px;align-items:center">
+                    <input type="color" id="accentColor" value="#2563EB" onchange="updateAccent(this.value)" style="width:40px;height:36px;border:1px solid var(--border2);border-radius:8px;background:none;cursor:pointer;padding:2px">
+                    <input class="form-input" id="accentHex" value="#2563EB" oninput="updateAccentHex(this.value)" style="flex:1">
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-title">Dados do Estabelecimento</div>
+                <div class="form-group">
+                  <label class="form-label">Nome</label>
+                  <input class="form-input" id="configName" type="text">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Tipo de Negócio</label>
+                  <select class="form-select" id="configType">
+                    <option>Salão / Barbearia</option>
+                    <option>Clínica de Estética</option>
+                    <option>Consultório Médico</option>
+                    <option>Consultório Odontológico</option>
+                    <option>Estúdio de Tatuagem</option>
+                    <option>Outros</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">WhatsApp</label>
+                  <input class="form-input" id="configWa" type="text" placeholder="(11) 99999-9999">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Endereço</label>
+                  <input class="form-input" id="configAddr" type="text" placeholder="Rua, número, bairro">
+                </div>
+                <button class="btn btn-primary" onclick="saveConfig()">Salvar Configurações</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="tab-horarios" style="display:none">
+            <div class="card">
+              <div class="card-title">Horários de Funcionamento</div>
+              <div id="configHorarios"></div>
+              <button class="btn btn-primary" style="margin-top:16px" onclick="alert('Horários salvos!')">Salvar Horários</button>
+            </div>
+          </div>
+
+          <div id="tab-notif" style="display:none">
+            <div class="card">
+              <div class="card-title">Notificações</div>
+              <div style="display:flex;flex-direction:column;gap:16px">
+                <div style="display:flex;align-items:center;justify-content:space-between">
+                  <div>
+                    <div style="font-size:14px;color:var(--text-1);font-weight:500">Lembrete por WhatsApp</div>
+                    <div style="font-size:12px;color:var(--text-3);margin-top:2px">Enviar lembrete 24h antes</div>
+                  </div>
+                  <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between">
+                  <div>
+                    <div style="font-size:14px;color:var(--text-1);font-weight:500">Confirmação automática</div>
+                    <div style="font-size:12px;color:var(--text-3);margin-top:2px">Confirmar agendamento por WhatsApp</div>
+                  </div>
+                  <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between">
+                  <div>
+                    <div style="font-size:14px;color:var(--text-1);font-weight:500">Notificação de novo agendamento</div>
+                    <div style="font-size:12px;color:var(--text-3);margin-top:2px">Receber alerta quando cliente marcar</div>
+                  </div>
+                  <div class="toggle" onclick="this.classList.toggle('on')"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="tab-plano" style="display:none">
+            <div class="grid-3">
+              <div class="card" style="border-color:var(--accent-border)">
+                <div style="font-size:11px;color:var(--accent2);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Gratuito — Atual</div>
+                <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:28px;margin-bottom:16px">R$0</div>
+                <div style="font-size:13px;color:var(--text-2);display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+                  <div>✓ 1 profissional</div>
+                  <div>✓ 50 agendamentos/mês</div>
+                  <div>✓ Clientes ilimitados</div>
+                  <div>✓ Calendário básico</div>
+                </div>
+                <button class="btn btn-outline" style="width:100%;justify-content:center" disabled>Plano atual</button>
+              </div>
+              <div class="card">
+                <div style="font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Pro</div>
+                <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:28px;margin-bottom:16px">R$49 <span style="font-size:13px;font-weight:400;color:var(--text-3)">/mês</span></div>
+                <div style="font-size:13px;color:var(--text-2);display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+                  <div>✓ 3 profissionais</div>
+                  <div>✓ Agendamentos ilimitados</div>
+                  <div>✓ WhatsApp Bot</div>
+                  <div>✓ Relatórios completos</div>
+                  <div>✓ Lembretes automáticos</div>
+                </div>
+                <button class="btn btn-primary" style="width:100%;justify-content:center">Assinar Pro</button>
+              </div>
+              <div class="card">
+                <div style="font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Business</div>
+                <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:28px;margin-bottom:16px">R$99 <span style="font-size:13px;font-weight:400;color:var(--text-3)">/mês</span></div>
+                <div style="font-size:13px;color:var(--text-2);display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+                  <div>✓ Tudo do Pro</div>
+                  <div>✓ Profissionais ilimitados</div>
+                  <div>✓ Multi-unidades</div>
+                  <div>✓ API própria</div>
+                  <div>✓ Suporte prioritário</div>
+                </div>
+                <button class="btn btn-outline" style="width:100%;justify-content:center">Ver Business</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+
+    <!-- MOBILE BOTTOM NAV -->
+    <nav class="mobile-nav">
+      <div class="mobile-nav-items">
+        <button class="mobile-nav-item active" id="mob-dashboard" onclick="navigate('dashboard',this,true)">
+          <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          Início
+        </button>
+        <button class="mobile-nav-item" id="mob-agenda" onclick="navigate('agenda',this,true)">
+          <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Agenda
+        </button>
+        <button class="mobile-nav-item" id="mob-funcionarios" onclick="navigate('funcionarios',this,true)">
+          <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M16 11c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm-8 0c1.657 0 3-1.343 3-3S9.657 5 8 5 5 6.343 5 8s1.343 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          Equipe
+        </button>
+        <button class="mobile-nav-item" id="mob-clientes" onclick="navigate('clientes',this,true)">
+          <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          Clientes
+        </button>
+        <button class="mobile-nav-item" id="mob-config" onclick="navigate('config',this,true)">
+          <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+          Config
+        </button>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Mobile overlay -->
+  <div class="mobile-overlay" id="mobileOverlay" onclick="closeSidebar()"></div>
+</div>
+
+<!-- ── MODALS ── -->
+<div class="modal-overlay" id="modalAgendamento">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modalAgendamento')">×</button>
+    <div class="modal-title">Novo Agendamento</div>
+    <div class="form-group">
+      <label class="form-label">Cliente</label>
+      <input class="form-input" id="ag_cliente" type="text" placeholder="Nome do cliente">
+    </div>
+    <div class="form-group">
+      <label class="form-label">WhatsApp</label>
+      <input class="form-input" id="ag_wa" type="text" placeholder="(11) 99999-9999">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Serviço</label>
+      <select class="form-select" id="ag_servico"></select>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="form-group">
+        <label class="form-label">Data</label>
+        <input class="form-input" id="ag_data" type="date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Hora</label>
+        <input class="form-input" id="ag_hora" type="time">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Observações</label>
+      <textarea class="form-input" id="ag_obs" rows="2" placeholder="Informações adicionais..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalAgendamento')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarAgendamento()">Salvar Agendamento</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalServico">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modalServico')">×</button>
+    <div class="modal-title" id="modalServicoTitle">Novo Serviço</div>
+    <div class="form-group">
+      <label class="form-label">Nome do Serviço</label>
+      <input class="form-input" id="sv_nome" type="text" placeholder="Ex: Corte Feminino">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="form-group">
+        <label class="form-label">Duração (min)</label>
+        <input class="form-input" id="sv_dur" type="number" value="60" min="15" step="15">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Preço (R$)</label>
+        <input class="form-input" id="sv_preco" type="number" value="0" min="0" step="5">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Emoji / Ícone</label>
+      <input class="form-input" id="sv_emoji" type="text" value="✂️" placeholder="✂️">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Descrição (opcional)</label>
+      <textarea class="form-input" id="sv_desc" rows="2" placeholder="Descrição do serviço..."></textarea>
+    </div>
+    <input type="hidden" id="sv_idx" value="-1">
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalServico')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarServico()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalCliente">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modalCliente')">×</button>
+    <div class="modal-title">Novo Cliente</div>
+    <div class="form-group">
+      <label class="form-label">Nome Completo</label>
+      <input class="form-input" id="cl_nome" type="text">
+    </div>
+    <div class="form-group">
+      <label class="form-label">WhatsApp</label>
+      <input class="form-input" id="cl_wa" type="text" placeholder="(11) 99999-9999">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email (opcional)</label>
+      <input class="form-input" id="cl_email" type="email">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Observações</label>
+      <textarea class="form-input" id="cl_obs" rows="2" placeholder="Preferências, alergias..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalCliente')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarCliente()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL FUNCIONÁRIO ══════════ -->
+<div class="modal-overlay" id="modalFuncionario">
+  <div class="modal" style="max-width:560px;max-height:90vh;overflow-y:auto">
+    <button class="modal-close" onclick="closeModal('modalFuncionario')">×</button>
+    <div class="modal-title" id="modalFuncTitle">Novo Funcionário</div>
+    <input type="hidden" id="fn_idx" value="-1">
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="form-group" style="grid-column:1/-1">
+        <label class="form-label">Nome Completo *</label>
+        <input class="form-input" id="fn_nome" type="text" placeholder="Ex: Carlos Oliveira">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cargo / Função</label>
+        <input class="form-input" id="fn_cargo" type="text" placeholder="Ex: Barbeiro, Cabeleireiro">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Telefone</label>
+        <input class="form-input" id="fn_telefone" type="text" placeholder="(11) 99999-9999">
+      </div>
+      <div class="form-group" style="display:flex;align-items:center;gap:10px">
+        <label class="form-label" style="margin:0">Cor no calendário</label>
+        <input type="color" id="fn_cor" value="#2563EB" style="width:40px;height:36px;border:1px solid var(--border2);border-radius:8px;cursor:pointer;background:none;padding:2px">
+      </div>
+      <div class="form-group" style="display:flex;align-items:center;gap:10px">
+        <label class="form-label" style="margin:0">Ativo</label>
+        <input type="checkbox" id="fn_ativo" checked style="width:18px;height:18px;cursor:pointer;accent-color:var(--accent)">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Especialidades</label>
+      <p style="font-size:11px;color:var(--text-3);margin-bottom:8px">Clique para selecionar</p>
+      <div id="funcEspecialidadesContainer" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Horários de Trabalho</label>
+      <div id="funcHorariosContainer"></div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-outline" id="btnExcluirFunc" style="display:none;margin-right:auto;color:var(--danger);border-color:var(--danger)" onclick="excluirFuncionario()">Excluir</button>
+      <button class="btn btn-outline" onclick="closeModal('modalFuncionario')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarFuncionario()">Salvar Funcionário</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL PWA INSTALL ══════════ -->
+<div class="modal-overlay" id="modalPwaInstall">
+  <div class="modal" style="max-width:500px;max-height:90vh;overflow-y:auto">
+    <button class="modal-close" onclick="closeModal('modalPwaInstall')">×</button>
+    <div class="modal-title">📱 Instalar no Celular</div>
+    <p style="font-size:13px;color:var(--text-3);margin-bottom:16px">Adicione o Rush à tela inicial do seu celular e use como um app nativo, mesmo sem internet.</p>
+
+    <div class="pwa-os-tabs">
+      <div class="pwa-os-tab active" id="pwa_tab_android" onclick="switchPwaOs('android')">🤖 Android</div>
+      <div class="pwa-os-tab" id="pwa_tab_ios" onclick="switchPwaOs('ios')">🍎 iPhone (iOS)</div>
+    </div>
+
+    <!-- Android -->
+    <div id="pwa_content_android">
+      <div class="pwa-install-step">
+        <div class="pwa-install-num">1</div>
+        <div class="pwa-install-text">
+          <div class="pwa-install-title">Abra no Chrome (Android)</div>
+          <div class="pwa-install-desc">Certifique-se de estar usando o <strong>Google Chrome</strong>. Outros navegadores podem não suportar a instalação.</div>
+        </div>
+      </div>
+      <div class="pwa-install-step">
+        <div class="pwa-install-num">2</div>
+        <div class="pwa-install-text">
+          <div class="pwa-install-title">Toque nos 3 pontos (⋮)</div>
+          <div class="pwa-install-desc">No canto superior direito do Chrome, toque no ícone de menu com 3 pontos verticais.</div>
+        </div>
+      </div>
+      <div class="pwa-install-step">
+        <div class="pwa-install-num">3</div>
+        <div class="pwa-install-text">
+          <div class="pwa-install-title">Toque em "Adicionar à tela inicial"</div>
+          <div class="pwa-install-desc">Selecione a opção <strong>"Adicionar à tela inicial"</strong> ou <strong>"Instalar app"</strong> no menu.</div>
+        </div>
+      </div>
+      <div class="pwa-install-step">
+        <div class="pwa-install-num">4</div>
+        <div class="pwa-install-text">
+          <div class="pwa-install-title">Confirme a instalação</div>
+          <div class="pwa-install-desc">Toque em <strong>"Adicionar"</strong> na caixa de diálogo. O ícone do Rush aparecerá na sua tela inicial.</div>
+        </div>
+      </div>
+      <div style="padding:12px;background:var(--success-dim);border-radius:var(--radius);border:1px solid rgba(16,185,129,0.25);margin-top:4px">
+        <p style="font-size:12px;color:var(--success)">✅ <strong>Dica:</strong> Se aparecer um banner "Instalar Rush" na parte de baixo da tela, basta tocá-lo diretamente!</p>
+      </div>
+    </div>
+
+    <!-- iOS -->
+    <div id="pwa_content_ios" style="display:none">
+      <div class="pwa-install-step">
+        <div class="pwa-install-num">1</div>
+        <div class="pwa-install-text">
+          <div class="pwa-install-title">Abra no Safari (iPhone)</div>
+          <div class="pwa-install-desc">A instalação no iPhone só funciona pelo <strong>Safari</strong>. Abra este arquivo HTML no Safari do iPhone.</div>
+        </div>
+      </div>
+      <div class="pwa-install-step">
+        <div class="pwa-install-num">2</div>
+        <div class="pwa-install-text">
+          <div class="pwa-install-title">Toque no botão Compartilhar (□↑)</div>
+          <div class="pwa-install-desc">Na barra inferior do Safari, toque no ícone de <strong>compartilhamento</strong> (quadrado com seta para cima).</div>
+        </div>
+      </div>
+      <div class="pwa-install-step">
+        <div class="pwa-install-num">3</div>
+        <div class="pwa-install-text">
+          <div class="pwa-install-title">Toque "Adicionar à Tela de Início"</div>
+          <div class="pwa-install-desc">Role o menu para baixo e toque em <strong>"Adicionar à Tela de Início"</strong>. O ícone do Rush aparecerá.</div>
+        </div>
+      </div>
+      <div class="pwa-install-step">
+        <div class="pwa-install-num">4</div>
+        <div class="pwa-install-text">
+          <div class="pwa-install-title">Toque "Adicionar" no canto superior direito</div>
+          <div class="pwa-install-desc">Confirme o nome "Rush" e toque em <strong>"Adicionar"</strong>. Pronto — abra pelo ícone na tela inicial!</div>
+        </div>
+      </div>
+      <div style="padding:12px;background:var(--warning-dim);border-radius:var(--radius);border:1px solid rgba(245,158,11,0.25);margin-top:4px">
+        <p style="font-size:12px;color:var(--warning)">⚠️ <strong>Importante:</strong> O PWA no iOS funciona apenas pelo Safari. Chrome e outros navegadores no iPhone não suportam instalação de PWA.</p>
+      </div>
+    </div>
+
+    <hr class="divider">
+    <div class="modal-title" style="font-size:15px;margin-bottom:12px">💬 Configurar WhatsApp Bot</div>
+    <div class="pwa-install-step">
+      <div class="pwa-install-num">1</div>
+      <div class="pwa-install-text">
+        <div class="pwa-install-title">Criar conta na Z-API</div>
+        <div class="pwa-install-desc">Acesse <strong>z-api.io</strong> e crie uma conta gratuita. É o provedor recomendado para testes.</div>
+      </div>
+    </div>
+    <div class="pwa-install-step">
+      <div class="pwa-install-num">2</div>
+      <div class="pwa-install-text">
+        <div class="pwa-install-title">Criar uma instância</div>
+        <div class="pwa-install-desc">No painel da Z-API, clique em <strong>"Criar instância"</strong>. Você receberá um <strong>Instance ID</strong> e um <strong>Token</strong>.</div>
+      </div>
+    </div>
+    <div class="pwa-install-step">
+      <div class="pwa-install-num">3</div>
+      <div class="pwa-install-text">
+        <div class="pwa-install-title">Conectar seu WhatsApp</div>
+        <div class="pwa-install-desc">Na instância criada, clique em <strong>"QR Code"</strong> e escaneie com o WhatsApp do seu estabelecimento (Configurações → Aparelhos Conectados).</div>
+      </div>
+    </div>
+    <div class="pwa-install-step">
+      <div class="pwa-install-num">4</div>
+      <div class="pwa-install-text">
+        <div class="pwa-install-title">Inserir credenciais no Rush</div>
+        <div class="pwa-install-desc">Vá em <strong>WhatsApp Bot → Configuração da Integração</strong> e cole seu Instance ID e Token. Clique em "Testar Conexão".</div>
+      </div>
+    </div>
+    <div class="pwa-install-step">
+      <div class="pwa-install-num">5</div>
+      <div class="pwa-install-text">
+        <div class="pwa-install-title">Testar o bot</div>
+        <div class="pwa-install-desc">Envie uma mensagem para o número conectado a partir de outro celular. O bot responderá com o menu de boas-vindas automaticamente.</div>
+      </div>
+    </div>
+    <div style="padding:12px;background:var(--accent-dim);border-radius:var(--radius);border:1px solid var(--accent-border);margin-top:8px">
+      <p style="font-size:12px;color:var(--accent2)">💡 <strong>Para produção real:</strong> O bot precisa de um backend (Python/Node) rodando 24h. Consulte a documentação da Z-API para configurar o webhook.</p>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="closeModal('modalPwaInstall');navigate('whatsapp',null)">Ir para WhatsApp Bot →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ SCRIPTS ══════════ -->
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+
+<script>
+// ════════════════════════════════════
+// FIREBASE CONFIG & INIT
+// ════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyBwchMu6u89v4fyHHEymutcVIZMowTfRe0",
+  authDomain: "rush-app-ce02c.firebaseapp.com",
+  projectId: "rush-app-ce02c",
+  storageBucket: "rush-app-ce02c.firebasestorage.app",
+  messagingSenderId: "1048249184728",
+  appId: "1:1048249184728:web:efe0269f57a49afb5382ad"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db   = firebase.firestore();
+
+// ════════════════════════════════════
+// AUTH — LOGIN COM E-MAIL
+// ════════════════════════════════════
+async function doLogin() {
+  const email  = document.getElementById('loginEmail').value.trim();
+  const senha  = document.getElementById('loginPassword').value;
+  const btn    = document.getElementById('loginBtn');
+  const btnTxt = document.getElementById('loginBtnText');
+
+  document.getElementById('loginError').classList.remove('visible');
+  if (!email || !senha) { showLoginError('Preencha o e-mail e a senha.'); return; }
+
+  btn.disabled = true;
+  btnTxt.innerHTML = '<span class="login-spinner"></span> Entrando...';
+
+  try {
+    await auth.signInWithEmailAndPassword(email, senha);
+    // onAuthStateChanged cuida do resto
+  } catch(e) {
+    const msgs = {
+      'auth/user-not-found': 'Nenhuma conta com este e-mail.',
+      'auth/wrong-password': 'Senha incorreta.',
+      'auth/invalid-email':  'E-mail inválido.',
+      'auth/too-many-requests': 'Muitas tentativas. Aguarde e tente novamente.',
+    };
+    showLoginError(msgs[e.code] || 'Erro ao entrar. Tente novamente.');
+    btn.disabled = false;
+    btnTxt.textContent = 'Entrar no Rush';
+  }
+}
+
+// ── LOGIN COM GOOGLE ─────────────────
+async function doLoginGoogle() {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  try {
+    await auth.signInWithPopup(provider);
+    // onAuthStateChanged cuida do resto
+  } catch(e) {
+    showLoginError('Erro ao entrar com Google. Tente novamente.');
+  }
+}
+
+// ── CADASTRO ─────────────────────────
+function showRegister() {
+  document.getElementById('loginRight').style.display = 'none';
+  document.getElementById('registerPanel').style.display = 'flex';
+  document.getElementById('registerError').classList.remove('visible');
+  ['regNome','regEmail','regSenha','regConfirm'].forEach(id => document.getElementById(id).value = '');
+  setTimeout(() => document.getElementById('regNome').focus(), 100);
+}
+
+function hideRegister() {
+  document.getElementById('loginRight').style.display = 'flex';
+  document.getElementById('registerPanel').style.display = 'none';
+}
+
+async function doRegister() {
+  const nome    = document.getElementById('regNome').value.trim();
+  const email   = document.getElementById('regEmail').value.trim();
+  const senha   = document.getElementById('regSenha').value;
+  const confirm = document.getElementById('regConfirm').value;
+  const errDiv  = document.getElementById('registerError');
+  errDiv.classList.remove('visible');
+
+  if (!nome)              { errDiv.textContent = '⚠ Informe seu nome.'; errDiv.classList.add('visible'); return; }
+  if (!email.includes('@')){ errDiv.textContent = '⚠ E-mail inválido.'; errDiv.classList.add('visible'); return; }
+  if (senha.length < 6)  { errDiv.textContent = '⚠ Senha mínima de 6 caracteres.'; errDiv.classList.add('visible'); return; }
+  if (senha !== confirm)  { errDiv.textContent = '⚠ As senhas não coincidem.'; errDiv.classList.add('visible'); return; }
+
+  try {
+    const cred = await auth.createUserWithEmailAndPassword(email, senha);
+    await cred.user.updateProfile({ displayName: nome });
+    // Salva perfil no Firestore
+    await db.collection('users').doc(cred.user.uid).set({ nome, email, role: 'admin', criadoEm: new Date() });
+    // onAuthStateChanged cuida do resto
+  } catch(e) {
+    const msgs = {
+      'auth/email-already-in-use': 'Já existe uma conta com este e-mail.',
+      'auth/invalid-email': 'E-mail inválido.',
+      'auth/weak-password': 'Senha muito fraca.',
+    };
+    errDiv.textContent = '⚠ ' + (msgs[e.code] || 'Erro ao criar conta.');
+    errDiv.classList.add('visible');
+  }
+}
+
+// ── RECUPERAÇÃO DE SENHA (e-mail real) ──
+function showForgotPassword() {
+  document.getElementById('loginRight').style.display = 'none';
+  document.getElementById('forgotPanel').style.display = 'flex';
+  document.getElementById('forgotEmail').value = '';
+  document.getElementById('forgotEmail').disabled = false;
+  document.getElementById('forgotError').classList.remove('visible');
+  document.getElementById('forgotSuccess').style.display = 'none';
+  document.getElementById('newPasswordGroup').style.display = 'none';
+  document.getElementById('confirmPasswordGroup').style.display = 'none';
+  document.getElementById('forgotBtnText').textContent = 'Enviar e-mail de recuperação';
+  document.getElementById('forgotBtn').onclick = doForgotPassword;
+  document.getElementById('forgotBtn').style.display = '';
+}
+
+function hideForgotPassword() {
+  document.getElementById('loginRight').style.display = 'flex';
+  document.getElementById('forgotPanel').style.display = 'none';
+}
+
+async function doForgotPassword() {
+  const email  = document.getElementById('forgotEmail').value.trim();
+  const errDiv = document.getElementById('forgotError');
+  const sucDiv = document.getElementById('forgotSuccess');
+  errDiv.classList.remove('visible');
+  sucDiv.style.display = 'none';
+
+  if (!email) { errDiv.textContent = '⚠ Informe o e-mail da sua conta.'; errDiv.classList.add('visible'); return; }
+
+  try {
+    await auth.sendPasswordResetEmail(email);
+    sucDiv.textContent = '✅ E-mail de recuperação enviado! Verifique sua caixa de entrada (e o spam).';
+    sucDiv.style.display = 'block';
+    document.getElementById('forgotBtn').style.display = 'none';
+    setTimeout(hideForgotPassword, 4000);
+  } catch(e) {
+    const msgs = {
+      'auth/user-not-found': 'Nenhuma conta com este e-mail.',
+      'auth/invalid-email':  'E-mail inválido.',
+    };
+    errDiv.textContent = '⚠ ' + (msgs[e.code] || 'Erro ao enviar e-mail.');
+    errDiv.classList.add('visible');
+  }
+}
+
+function doResetPassword() {} // não usada mais — Firebase envia e-mail real
+
+// ── LOGOUT ───────────────────────────
+async function doLogout() {
+  if (!confirm('Deseja sair da conta?')) return;
+  await auth.signOut();
+  location.reload();
+}
+
+function showLoginError(msg) {
+  const errDiv = document.getElementById('loginError');
+  errDiv.textContent = '⚠ ' + msg;
+  errDiv.classList.add('visible');
+  errDiv.style.color = '';
+}
+
+function enterApp(user) {
+  document.getElementById('loginScreen').style.display = 'none';
+  const name = user.displayName || user.email || 'Usuário';
+  document.getElementById('sidebarUserName').textContent = name;
+  document.getElementById('sidebarUserAvatar').textContent = name[0].toUpperCase();
+
+  loadStateFromFirestore(user.uid).then(() => {
+    if (state.configured) {
+      bootApp();
+    } else {
+      document.getElementById('setupScreen').classList.add('active');
+      addSetupService();
+    }
+  });
+}
+
+// ════════════════════════════════════
+// STATE & FIRESTORE
+// ════════════════════════════════════
+let currentUID = null;
+
+let state = {
+  negocio: { nome:'', tipo:'', whatsapp:'', logo:'', accent:'#2563EB' },
+  servicos: [],
+  clientes: [],
+  agendamentos: [],
+  funcionarios: [],
+  configured: false
+};
+
+async function loadStateFromFirestore(uid) {
+  currentUID = uid;
+  try {
+    const doc = await db.collection('estados').doc(uid).get();
+    if (doc.exists) {
+      state = { ...state, ...doc.data() };
+    }
+  } catch(e) {
+    // fallback localStorage
+    const d = localStorage.getItem('rush_state');
+    if (d) state = { ...state, ...JSON.parse(d) };
+  }
+}
+
+async function save() {
+  try {
+    if (currentUID) {
+      await db.collection('estados').doc(currentUID).set(state, { merge: true });
+    }
+    localStorage.setItem('rush_state', JSON.stringify(state)); // backup local
+  } catch(e) {
+    localStorage.setItem('rush_state', JSON.stringify(state));
+  }
+}
+
+function load() {
+  try {
+    const d = localStorage.getItem('rush_state');
+    if (d) { state = {...state, ...JSON.parse(d)}; return true; }
+  } catch(e) {}
+  return false;
+}
+
+// ════════════════════════════════════
+// SETUP WIZARD
+// ════════════════════════════════════
+let currentStep = 1;
+let setupServices = [];
+
+function setupNext(step) {
+  if (step === 2) {
+    const nome = document.getElementById('s_name').value.trim();
+    if (!nome) { alert('Por favor, informe o nome do estabelecimento.'); return; }
+    state.negocio.nome = nome;
+    state.negocio.tipo = document.getElementById('s_type').value || 'Estabelecimento';
+    state.negocio.whatsapp = document.getElementById('s_whatsapp').value;
+  }
+  document.getElementById('setupStep' + currentStep).style.display = 'none';
+  currentStep = step;
+  document.getElementById('setupStep' + step).style.display = 'block';
+  const dots = document.querySelectorAll('.step-dot');
+  dots.forEach((d,i) => {
+    d.classList.remove('active','done');
+    if (i < step - 1) d.classList.add('done');
+    else if (i === step - 1) d.classList.add('active');
+  });
+}
+
+function addSetupService() {
+  const div = document.createElement('div');
+  div.style.cssText = 'display:grid;grid-template-columns:1fr 80px 90px 36px;gap:8px;margin-bottom:8px;align-items:center';
+  const idx = setupServices.length;
+  div.innerHTML = `
+    <input class="form-input" placeholder="Nome do serviço" id="ss_nome_${idx}" style="padding:8px 10px">
+    <input class="form-input" type="number" placeholder="min" id="ss_dur_${idx}" value="60" style="padding:8px 10px;text-align:center">
+    <input class="form-input" type="number" placeholder="R$" id="ss_preco_${idx}" value="50" style="padding:8px 10px;text-align:center">
+    <button class="btn btn-ghost" style="padding:8px;color:var(--danger)" onclick="this.parentElement.remove()">×</button>
+  `;
+  document.getElementById('setupServicesList').appendChild(div);
+  setupServices.push(idx);
+}
+
+function finishSetup() {
+  state.servicos = [];
+  const lista = document.getElementById('setupServicesList');
+  const rows = lista.children;
+  const emojis = ['✂️','💅','💆','🦷','💪','🎨','💇','🌿'];
+  for (let i = 0; i < rows.length; i++) {
+    const inputs = rows[i].querySelectorAll('input');
+    const nome = inputs[0]?.value?.trim();
+    if (!nome) continue;
+    state.servicos.push({
+      nome, dur: parseInt(inputs[1]?.value)||60,
+      preco: parseFloat(inputs[2]?.value)||0,
+      emoji: emojis[i % emojis.length]
+    });
+  }
+  if (state.servicos.length === 0) {
+    state.servicos = [{ nome:'Serviço Principal', dur:60, preco:60, emoji:'⭐' }];
+  }
+  state.configured = true;
+  save();
+  bootApp();
+}
+
+// ════════════════════════════════════
+// INIT — Firebase Auth Observer
+// ════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      enterApp(user);
+    }
+    // Se não logado, tela de login aparece por padrão
+  });
+});
+function bootApp() {
+  document.getElementById('setupScreen').classList.remove('active');
+  document.getElementById('mainApp').style.display = 'flex';
+
+  applyBrand();
+  populateConfigScreen();
+  renderServicos();
+  renderClientes();
+  renderFuncionarios();
+  renderDashAgenda();
+  updateTopbarDate();
+  initCalendar();
+  initWeekChart();
+
+  document.getElementById('ag_data').value = new Date().toISOString().split('T')[0];
+}
+
+function applyBrand() {
+  document.getElementById('brandName').textContent = state.negocio.nome || 'Meu Negócio';
+  document.getElementById('brandType').textContent = state.negocio.tipo || 'Estabelecimento';
+  const letter = (state.negocio.nome || 'R')[0].toUpperCase();
+  document.getElementById('brandLogoText').textContent = letter;
+  if (state.negocio.logo) {
+    document.getElementById('brandLogoImg').src = state.negocio.logo;
+    document.getElementById('brandLogoImg').style.display = 'block';
+    document.getElementById('brandLogoText').style.display = 'none';
+  }
+  if (state.negocio.accent) {
+    document.documentElement.style.setProperty('--accent', state.negocio.accent);
+    document.getElementById('accentColor').value = state.negocio.accent;
+    document.getElementById('accentHex').value = state.negocio.accent;
+  }
+  if (document.getElementById('configName'))
+    document.getElementById('configName').value = state.negocio.nome || '';
+  if (document.getElementById('configWa'))
+    document.getElementById('configWa').value = state.negocio.whatsapp || '';
+}
+
+// ════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════
+const screenTitles = {
+  dashboard:'Dashboard', agenda:'Agenda', servicos:'Serviços',
+  clientes:'Clientes', funcionarios:'Funcionários', whatsapp:'WhatsApp Bot', config:'Configurações'
+};
+
+function navigate(screen, btn, isMobile) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + screen).classList.add('active');
+
+  if (!isMobile) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+  } else {
+    document.querySelectorAll('.mobile-nav-item').forEach(n => n.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+  }
+
+  document.getElementById('topbarTitle').textContent = screenTitles[screen] || screen;
+  closeSidebar();
+
+  if (screen === 'agenda' && !calendarInit) initCalendar();
+}
+
+let sidebarOpen = false;
+function toggleSidebar() {
+  sidebarOpen = !sidebarOpen;
+  document.getElementById('sidebar').classList.toggle('open', sidebarOpen);
+  document.getElementById('mobileOverlay').classList.toggle('open', sidebarOpen);
+}
+function closeSidebar() {
+  sidebarOpen = false;
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('mobileOverlay').classList.remove('open');
+}
+
+function updateTopbarDate() {
+  const d = new Date();
+  const opts = { weekday:'long', day:'numeric', month:'long' };
+  document.getElementById('topbarDate').textContent = d.toLocaleDateString('pt-BR', opts);
+  document.getElementById('dashSub').textContent =
+    'Resumo de hoje — ' + d.toLocaleDateString('pt-BR', {day:'2-digit',month:'long',year:'numeric'});
+}
+
+// ════════════════════════════════════
+// CALENDAR
+// ════════════════════════════════════
+let calendarInit = false;
+let calendar;
+
+function initCalendar() {
+  if (calendarInit) return;
+  calendarInit = true;
+
+  const el = document.getElementById('mainCalendar');
+  if (!el) return;
+
+  const events = state.agendamentos.map(a => ({
+    title: (a.cliente||'') + ' — ' + (a.servico||''),
+    start: a.data + 'T' + (a.hora||'09:00'),
+    color: getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#2563EB'
+  }));
+
+  calendar = new FullCalendar.Calendar(el, {
+    initialView: window.innerWidth < 768 ? 'listWeek' : 'timeGridWeek',
+    locale: 'pt-br',
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+    },
+    slotMinTime: '07:00:00',
+    slotMaxTime: '21:00:00',
+    allDaySlot: false,
+    events: events,
+    eventClick: function(info) {
+      alert('Agendamento: ' + info.event.title);
+    },
+    dateClick: function(info) {
+      document.getElementById('ag_data').value = info.dateStr.split('T')[0];
+      if (info.date.getHours() > 0)
+        document.getElementById('ag_hora').value =
+          String(info.date.getHours()).padStart(2,'0') + ':00';
+      openNewAgendamento();
+    }
+  });
+  calendar.render();
+}
+
+// ════════════════════════════════════
+// CHARTS
+// ════════════════════════════════════
+function initWeekChart() {
+  const ctx = document.getElementById('weekChart');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Seg','Ter','Qua','Qui','Sex','Sáb'],
+      datasets: [{
+        label: 'Agendamentos',
+        data: [5,8,6,9,7,4],
+        backgroundColor: 'rgba(37,99,235,0.6)',
+        borderColor: '#3B82F6',
+        borderWidth: 1,
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#506484', font: { size: 11 } } },
+        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#506484', font: { size: 11 }, stepSize: 2 }, beginAtZero: true }
+      }
+    }
+  });
+}
+
+// ════════════════════════════════════
+// AGENDAMENTOS
+// ════════════════════════════════════
+function openNewAgendamento() {
+  const sel = document.getElementById('ag_servico');
+  sel.innerHTML = state.servicos.map(s =>
+    `<option>${s.emoji} ${s.nome} (${s.dur}min — R$${s.preco})</option>`
+  ).join('') || '<option>Nenhum serviço cadastrado</option>';
+  document.getElementById('ag_data').value = new Date().toISOString().split('T')[0];
+  openModal('modalAgendamento');
+}
+
+function salvarAgendamento() {
+  const cliente = document.getElementById('ag_cliente').value.trim();
+  const wa      = document.getElementById('ag_wa').value.trim();
+  const servico = document.getElementById('ag_servico').value;
+  const data    = document.getElementById('ag_data').value;
+  const hora    = document.getElementById('ag_hora').value;
+
+  if (!cliente || !data) { alert('Preencha ao menos nome e data.'); return; }
+
+  const ag = { cliente, wa, servico, data, hora, obs: document.getElementById('ag_obs').value, status:'confirmed' };
+  state.agendamentos.push(ag);
+
+  if (calendar) {
+    calendar.addEvent({
+      title: cliente + ' — ' + (servico.split('(')[0].trim()),
+      start: data + 'T' + (hora||'09:00'),
+      color: getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()
+    });
+  }
+
+  if (!state.clientes.find(c => c.nome.toLowerCase() === cliente.toLowerCase())) {
+    state.clientes.push({ nome:cliente, wa, email:'', obs:'', visitas:1, ultimo:data });
+    renderClientes();
+  }
+
+  save();
+  renderDashAgenda();
+  closeModal('modalAgendamento');
+}
+
+// ════════════════════════════════════
+// DASHBOARD
+// ════════════════════════════════════
+const demoAgendamentos = [
+  { hora:'09:00', cliente:'Ana Silva',    servico:'Corte',     status:'confirmed' },
+  { hora:'10:30', cliente:'Marcos Lima',  servico:'Barba',     status:'confirmed' },
+  { hora:'12:00', cliente:'Julia Rocha',  servico:'Coloração', status:'pending'   },
+  { hora:'14:00', cliente:'Paula Costa',  servico:'Escova',    status:'confirmed' },
+  { hora:'15:30', cliente:'Carlos Melo',  servico:'Corte',     status:'pending'   },
+];
+
+function renderDashAgenda() {
+  const list = document.getElementById('dashAgendaList');
+  const items = [...demoAgendamentos, ...state.agendamentos.slice(-2)].slice(0,6);
+  list.innerHTML = items.map(a => `
+    <div class="agenda-item">
+      <div class="agenda-time">${a.hora||'--:--'}</div>
+      <div class="agenda-avatar">${(a.cliente||'?')[0].toUpperCase()}</div>
+      <div class="agenda-info">
+        <div class="agenda-client">${a.cliente}</div>
+        <div class="agenda-service">${a.servico}</div>
+      </div>
+      <span class="status-badge status-${a.status||'confirmed'}">
+        ${a.status==='confirmed'?'Confirmado':a.status==='pending'?'Pendente':a.status==='done'?'Concluído':'Cancelado'}
+      </span>
+    </div>
+  `).join('');
+  document.getElementById('metHoje').textContent = items.length + 2;
+  document.getElementById('metConf').textContent = items.filter(a=>a.status==='confirmed').length + 1;
+  document.getElementById('badgeAgenda').textContent = items.length;
+}
+
+// ════════════════════════════════════
+// FUNCIONÁRIOS
+// ════════════════════════════════════
+const FUNC_COLORS = [
+  '#2563EB','#10B981','#F59E0B','#EF4444','#8B5CF6','#EC4899','#06B6D4','#84CC16'
+];
+const FUNC_DIAS = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+const ESPECIALIDADES_SUGERIDAS = [
+  'Corte','Coloração','Barba','Escova','Manicure','Pedicure','Sobrancelha',
+  'Design','Massagem','Limpeza de Pele','Botox','Micropigmentação'
+];
+
+function renderFuncionarios() {
+  if (!state.funcionarios) state.funcionarios = [];
+  const grid  = document.getElementById('funcGrid');
+  const total  = state.funcionarios.length;
+  const ativos = state.funcionarios.filter(f => f.ativo !== false).length;
+
+  document.getElementById('funcTotal').textContent   = total;
+  document.getElementById('funcAtivos').textContent  = ativos;
+  document.getElementById('funcInativos').textContent= total - ativos;
+  document.getElementById('badgeFuncionarios').textContent = ativos;
+  document.getElementById('funcSubtitle').textContent =
+    total ? `${total} profissional${total>1?'is':''} cadastrado${total>1?'s':''}` : 'Gerencie sua equipe';
+
+  const cards = state.funcionarios.map((f, i) => {
+    const color = f.cor || FUNC_COLORS[i % FUNC_COLORS.length];
+    const ativo = f.ativo !== false;
+    const tags  = (f.especialidades||[]).slice(0,3).map(e =>
+      `<span class="func-tag">${e}</span>`).join('');
+    const dias = (f.horarios||[]).filter(h=>h.ativo).map(h=>
+      `<span class="func-horario-chip">${h.dia}</span>`).join('');
+    return `
+    <div class="func-card" onclick="editFuncionario(${i})">
+      <div class="func-status">
+        <span class="status-badge ${ativo?'status-confirmed':'status-done'}">${ativo?'Ativo':'Inativo'}</span>
+      </div>
+      <div class="func-avatar" style="background:${color}">${(f.nome||'?')[0].toUpperCase()}</div>
+      <div class="func-name">${f.nome||'—'}</div>
+      <div class="func-role">${f.cargo||'Profissional'}</div>
+      ${tags ? `<div class="func-tags">${tags}${(f.especialidades||[]).length>3?`<span class="func-tag">+${(f.especialidades||[]).length-3}</span>`:''}</div>` : ''}
+      ${f.telefone ? `<div class="func-info-row"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8a19.79 19.79 0 01-3.07-8.68A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>${f.telefone}</div>` : ''}
+      ${dias ? `<div class="func-horarios" style="margin-top:6px">${dias}</div>` : ''}
+    </div>`;
+  }).join('');
+
+  grid.innerHTML = cards + `
+    <div class="func-add-card" onclick="openNovoFuncionario()">
+      <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+        <path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+      </svg>
+      <span style="font-weight:600">Novo Funcionário</span>
+      <span style="font-size:11px;color:var(--text-3)">Clique para adicionar</span>
+    </div>`;
+}
+
+function buildFuncHorariosModal() {
+  return FUNC_DIAS.map((d, i) => `
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+      <div class="toggle ${i<6?'on':''}" id="fh_toggle_${i}" onclick="this.classList.toggle('on')" style="flex-shrink:0"></div>
+      <div style="min-width:36px;font-size:12px;font-weight:600;color:var(--text-2)">${d}</div>
+      <input class="form-input" type="time" id="fh_ini_${i}" value="${i<5?'09:00':i===5?'09:00':'09:00'}" style="width:80px;padding:6px 8px;font-size:12px">
+      <span style="font-size:11px;color:var(--text-3)">às</span>
+      <input class="form-input" type="time" id="fh_fim_${i}" value="${i<5?'19:00':i===5?'14:00':'12:00'}" style="width:80px;padding:6px 8px;font-size:12px">
+    </div>`).join('');
+}
+
+function buildEspecialidadesModal(selecionadas) {
+  return ESPECIALIDADES_SUGERIDAS.map(e => {
+    const sel = (selecionadas||[]).includes(e);
+    return `<span class="func-tag" style="cursor:pointer;padding:5px 10px;font-size:12px;transition:all .15s;${sel?'background:var(--accent);color:#fff;':'background:var(--bg-card2);color:var(--text-3);border:1px solid var(--border2);'}" onclick="toggleEspecialidade(this,'${e}')">${e}</span>`;
+  }).join('');
+}
+
+function toggleEspecialidade(el, nome) {
+  el.classList.toggle('selected');
+  if (el.style.background.includes('var(--accent)') || el.style.background === 'rgb(37, 99, 235)') {
+    el.style.background = 'var(--bg-card2)';
+    el.style.color = 'var(--text-3)';
+    el.style.border = '1px solid var(--border2)';
+  } else {
+    el.style.background = 'var(--accent)';
+    el.style.color = '#fff';
+    el.style.border = 'none';
+  }
+}
+
+function getEspecialidadesSelecionadas() {
+  const container = document.getElementById('funcEspecialidadesContainer');
+  return Array.from(container.querySelectorAll('span')).filter(s =>
+    s.style.background === 'var(--accent)' || s.style.color === 'rgb(255, 255, 255)'
+  ).map(s => s.textContent.trim());
+}
+
+function openNovoFuncionario() {
+  document.getElementById('fn_idx').value = '-1';
+  document.getElementById('modalFuncTitle').textContent = 'Novo Funcionário';
+  document.getElementById('fn_nome').value = '';
+  document.getElementById('fn_cargo').value = '';
+  document.getElementById('fn_telefone').value = '';
+  document.getElementById('fn_ativo').checked = true;
+  document.getElementById('fn_cor').value = FUNC_COLORS[state.funcionarios.length % FUNC_COLORS.length];
+  document.getElementById('funcHorariosContainer').innerHTML = buildFuncHorariosModal();
+  document.getElementById('funcEspecialidadesContainer').innerHTML = buildEspecialidadesModal([]);
+  document.getElementById('btnExcluirFunc').style.display = 'none';
+  openModal('modalFuncionario');
+}
+
+function editFuncionario(i) {
+  const f = state.funcionarios[i];
+  document.getElementById('fn_idx').value = i;
+  document.getElementById('modalFuncTitle').textContent = 'Editar Funcionário';
+  document.getElementById('fn_nome').value = f.nome||'';
+  document.getElementById('fn_cargo').value = f.cargo||'';
+  document.getElementById('fn_telefone').value = f.telefone||'';
+  document.getElementById('fn_ativo').checked = f.ativo !== false;
+  document.getElementById('fn_cor').value = f.cor||FUNC_COLORS[0];
+  document.getElementById('funcEspecialidadesContainer').innerHTML = buildEspecialidadesModal(f.especialidades||[]);
+  document.getElementById('funcHorariosContainer').innerHTML = buildFuncHorariosModal();
+  // Restaurar horários salvos
+  if (f.horarios) {
+    f.horarios.forEach((h, idx) => {
+      const tog = document.getElementById('fh_toggle_' + idx);
+      const ini = document.getElementById('fh_ini_' + idx);
+      const fim = document.getElementById('fh_fim_' + idx);
+      if (tog) { tog.classList.toggle('on', !!h.ativo); }
+      if (ini) ini.value = h.ini || '09:00';
+      if (fim) fim.value = h.fim || '19:00';
+    });
+  }
+  document.getElementById('btnExcluirFunc').style.display = 'inline-flex';
+  openModal('modalFuncionario');
+}
+
+function salvarFuncionario() {
+  const nome = document.getElementById('fn_nome').value.trim();
+  if (!nome) { alert('Informe o nome do funcionário.'); return; }
+
+  const horarios = FUNC_DIAS.map((d, i) => ({
+    dia: d,
+    ativo: document.getElementById('fh_toggle_' + i)?.classList.contains('on') || false,
+    ini: document.getElementById('fh_ini_' + i)?.value || '09:00',
+    fim: document.getElementById('fh_fim_' + i)?.value || '19:00'
+  }));
+
+  const esp = document.getElementById('funcEspecialidadesContainer');
+  const especialidades = Array.from(esp.querySelectorAll('span'))
+    .filter(s => s.style.color === 'rgb(255, 255, 255)' || s.style.background.includes('accent') || getComputedStyle(s).color === 'rgb(255, 255, 255)')
+    .map(s => s.textContent.trim());
+
+  const func = {
+    nome,
+    cargo: document.getElementById('fn_cargo').value.trim() || 'Profissional',
+    telefone: document.getElementById('fn_telefone').value.trim(),
+    ativo: document.getElementById('fn_ativo').checked,
+    cor: document.getElementById('fn_cor').value,
+    especialidades,
+    horarios
+  };
+
+  const idx = parseInt(document.getElementById('fn_idx').value);
+  if (idx >= 0) state.funcionarios[idx] = func;
+  else state.funcionarios.push(func);
+
+  save();
+  renderFuncionarios();
+  closeModal('modalFuncionario');
+}
+
+function excluirFuncionario() {
+  const idx = parseInt(document.getElementById('fn_idx').value);
+  if (idx < 0) return;
+  if (!confirm('Excluir este funcionário?')) return;
+  state.funcionarios.splice(idx, 1);
+  save();
+  renderFuncionarios();
+  closeModal('modalFuncionario');
+}
+
+// ════════════════════════════════════
+// PWA — INSTALL GUIDE
+// ════════════════════════════════════
+function openPwaGuide() { openModal('modalPwaInstall'); }
+
+function switchPwaOs(os) {
+  document.querySelectorAll('.pwa-os-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.pwa-os-content').forEach(t => t.style.display = 'none');
+  document.getElementById('pwa_tab_' + os).classList.add('active');
+  document.getElementById('pwa_content_' + os).style.display = 'block';
+}
+
+
+function renderServicos() {
+  const grid = document.getElementById('servicosGrid');
+  const colors = [
+    { bg:'rgba(37,99,235,0.12)', color:'#60A5FA' },
+    { bg:'rgba(16,185,129,0.12)', color:'#34D399' },
+    { bg:'rgba(245,158,11,0.12)', color:'#FCD34D' },
+    { bg:'rgba(239,68,68,0.12)', color:'#FCA5A5' },
+    { bg:'rgba(168,85,247,0.12)', color:'#C4B5FD' },
+    { bg:'rgba(236,72,153,0.12)', color:'#F9A8D4' },
+  ];
+
+  grid.innerHTML = state.servicos.map((s,i) => {
+    const c = colors[i % colors.length];
+    return `
+    <div class="service-card" onclick="editServico(${i})">
+      <div class="service-color" style="background:${c.bg};font-size:20px">${s.emoji||'⭐'}</div>
+      <div class="service-name">${s.nome}</div>
+      <div class="service-dur">⏱ ${s.dur} min</div>
+      <div class="service-price">R$ ${parseFloat(s.preco).toFixed(2).replace('.',',')}</div>
+    </div>
+    `;
+  }).join('');
+
+  grid.innerHTML += `
+    <div class="add-card" onclick="openNovoServico()">
+      <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      Adicionar serviço
+    </div>
+  `;
+}
+
+function openNovoServico() {
+  document.getElementById('sv_idx').value = '-1';
+  document.getElementById('modalServicoTitle').textContent = 'Novo Serviço';
+  document.getElementById('sv_nome').value = '';
+  document.getElementById('sv_dur').value = '60';
+  document.getElementById('sv_preco').value = '0';
+  document.getElementById('sv_emoji').value = '✂️';
+  document.getElementById('sv_desc').value = '';
+  openModal('modalServico');
+}
+
+function editServico(i) {
+  const s = state.servicos[i];
+  document.getElementById('sv_idx').value = i;
+  document.getElementById('modalServicoTitle').textContent = 'Editar Serviço';
+  document.getElementById('sv_nome').value = s.nome;
+  document.getElementById('sv_dur').value = s.dur;
+  document.getElementById('sv_preco').value = s.preco;
+  document.getElementById('sv_emoji').value = s.emoji||'⭐';
+  document.getElementById('sv_desc').value = s.desc||'';
+  openModal('modalServico');
+}
+
+function salvarServico() {
+  const nome = document.getElementById('sv_nome').value.trim();
+  if (!nome) { alert('Informe o nome do serviço.'); return; }
+  const sv = {
+    nome, dur: parseInt(document.getElementById('sv_dur').value)||60,
+    preco: parseFloat(document.getElementById('sv_preco').value)||0,
+    emoji: document.getElementById('sv_emoji').value||'⭐',
+    desc: document.getElementById('sv_desc').value
+  };
+  const idx = parseInt(document.getElementById('sv_idx').value);
+  if (idx >= 0) state.servicos[idx] = sv;
+  else state.servicos.push(sv);
+  save();
+  renderServicos();
+  closeModal('modalServico');
+}
+
+// ════════════════════════════════════
+// CLIENTES
+// ════════════════════════════════════
+let allClientes = [];
+const demoClientes = [
+  { nome:'Ana Silva',   wa:'(11) 99001-1234', email:'ana@email.com', visitas:8,  ultimo:'2025-04-18', status:'Ativo' },
+  { nome:'Marcos Lima', wa:'(11) 98765-4321', email:'',              visitas:3,  ultimo:'2025-04-15', status:'Ativo' },
+  { nome:'Julia Rocha', wa:'(21) 97654-3210', email:'julia@em.com',  visitas:12, ultimo:'2025-04-20', status:'Ativo' },
+  { nome:'Paula Costa', wa:'(11) 96543-2109', email:'',              visitas:1,  ultimo:'2025-03-28', status:'Inativo'},
+  { nome:'Carlos Melo', wa:'(11) 95432-1098', email:'carlos@em.com', visitas:5,  ultimo:'2025-04-10', status:'Ativo' },
+];
+
+function renderClientes() {
+  allClientes = [...demoClientes, ...state.clientes];
+  document.getElementById('clientesCount').textContent = allClientes.length + ' clientes cadastrados';
+  renderClientesTable(allClientes);
+}
+
+function renderClientesTable(list) {
+  const tbody = document.getElementById('clientesBody');
+  tbody.innerHTML = list.map(c => `
+    <tr>
+      <td class="client-name">${c.nome}</td>
+      <td class="client-phone">${c.wa || '—'}</td>
+      <td>${c.ultimo ? new Date(c.ultimo+'T12:00').toLocaleDateString('pt-BR') : '—'}</td>
+      <td><span class="chip chip-blue">${c.visitas||0} visitas</span></td>
+      <td><span class="status-badge ${(c.status||'Ativo')==='Ativo'?'status-confirmed':'status-done'}">${c.status||'Ativo'}</span></td>
+      <td><button class="btn btn-ghost" style="font-size:12px;padding:4px 8px">Ver →</button></td>
+    </tr>
+  `).join('');
+}
+
+function filterClients(q) {
+  const f = allClientes.filter(c => c.nome.toLowerCase().includes(q.toLowerCase()) || (c.wa||'').includes(q));
+  renderClientesTable(f);
+}
+
+function openNovoCliente() { openModal('modalCliente'); }
+
+function salvarCliente() {
+  const nome = document.getElementById('cl_nome').value.trim();
+  if (!nome) { alert('Informe o nome.'); return; }
+  state.clientes.push({
+    nome, wa: document.getElementById('cl_wa').value,
+    email: document.getElementById('cl_email').value,
+    obs: document.getElementById('cl_obs').value,
+    visitas: 0, ultimo: null, status:'Ativo'
+  });
+  save();
+  renderClientes();
+  closeModal('modalCliente');
+}
+
+// ════════════════════════════════════
+// CONFIGURAÇÕES
+// ════════════════════════════════════
+function populateConfigScreen() {
+  document.getElementById('configName').value = state.negocio.nome||'';
+  document.getElementById('configWa').value = state.negocio.whatsapp||'';
+
+  const dias = ['Segunda','Terça','Quarta','Quinta','Sexta','Sábado','Domingo'];
+  const def  = ['on','on','on','on','on','on',''];
+  document.getElementById('configHorarios').innerHTML = dias.map((d,i) => `
+    <div class="horario-row" style="margin-bottom:8px">
+      <div class="horario-day">${d}</div>
+      <div class="toggle ${def[i]}" onclick="this.classList.toggle('on')"></div>
+      <input class="form-input" type="time" value="${i<5?'09:00':i===5?'09:00':'09:00'}" style="width:90px;padding:6px 8px">
+      <span style="color:var(--text-3);font-size:12px">às</span>
+      <input class="form-input" type="time" value="${i<5?'19:00':i===5?'14:00':'12:00'}" style="width:90px;padding:6px 8px">
+    </div>
+  `).join('');
+}
+
+function saveConfig() {
+  state.negocio.nome = document.getElementById('configName').value;
+  state.negocio.whatsapp = document.getElementById('configWa').value;
+  save();
+  applyBrand();
+  alert('Configurações salvas!');
+}
+
+function switchTab(id, btn) {
+  ['tab-perfil','tab-horarios','tab-notif','tab-plano'].forEach(t => {
+    document.getElementById(t).style.display = t===id?'block':'none';
+  });
+  btn.closest('.tabs').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function updateAccent(val) {
+  document.documentElement.style.setProperty('--accent', val);
+  document.getElementById('accentHex').value = val;
+  state.negocio.accent = val;
+  save();
+}
+function updateAccentHex(val) {
+  if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+    document.documentElement.style.setProperty('--accent', val);
+    document.getElementById('accentColor').value = val;
+    state.negocio.accent = val;
+    save();
+  }
+}
+
+function previewLogo(input, previewId, imgId, textId) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const src = e.target.result;
+    state.negocio.logo = src;
+    save();
+    const prev = document.getElementById(previewId);
+    if (prev) { prev.src = src; prev.style.display = 'block'; }
+    const icon = input.parentElement.querySelector('svg');
+    const label = input.parentElement.querySelector('span');
+    if (icon) icon.style.display = 'none';
+    if (label) label.style.display = 'none';
+    if (imgId && document.getElementById(imgId)) {
+      document.getElementById(imgId).src = src;
+      document.getElementById(imgId).style.display = 'block';
+    }
+    if (textId && document.getElementById(textId))
+      document.getElementById(textId).style.display = 'none';
+    const cp = document.getElementById('configLogoPreview');
+    if (cp) { cp.src = src; cp.style.display = 'block'; }
+    const ci = document.getElementById('configLogoIcon');
+    if (ci) ci.style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+// ════════════════════════════════════
+// MODALS
+// ════════════════════════════════════
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+</script>
+<script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => console.log('SW registrado:', reg.scope))
+          .catch(err => console.error('Falha no SW:', err));
+      });
+    }
+  </script>
+</body>
+</html>
